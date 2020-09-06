@@ -1,0 +1,13 @@
+# Macro file for example tutorial
+# 
+# Can be run in batch, without graphic
+# or interactively: Idle> /control/execute run1.mac
+#
+/run/verbose 1
+/run/numberOfThreads 1
+/run/initialize
+/run/printProgress 1000
+#/run/beamOn 33750
+/run/beamOn 1000
+#
+

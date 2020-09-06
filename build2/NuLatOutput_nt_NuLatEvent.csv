@@ -1,0 +1,41 @@
+#class tools::wcsv::ntuple
+#title NuLatEvent
+#separator 44
+#vector_separator 59
+#column int EventID
+#column int EventSeed
+#column int PrimaryParticleIDNumber
+#column double PrimaryParticleKEnergy
+#column double PrimaryParticleVertexX
+#column double PrimaryParticleVertexY
+#column double PrimaryParticleVertexZ
+#column double PrimaryParticleVertexT
+#column double PrimaryParticleMomentumMagnitude
+#column double PrimaryParticleMomentumX
+#column double PrimaryParticleMomentumY
+#column double PrimaryParticleMomentumZ
+#column double TotalEnergyDeposited
+#column int NumberOfCellsHit
+#column int NumberOfEnergyDepositions
+#column int NumberOfPhotonHits
+#column int NumberOfPMTHits
+#column double[] CellEdep
+#column int[] CellXHitVector
+#column int[] CellYHitVector
+#column int[] CellZHitVector
+#column int[] ParticleIDNumber
+#column double[] ParticleEDep
+#column double[] XPosition
+#column double[] YPosition
+#column double[] ZPosition
+#column double[] TimeFromEventStart
+#column int[] PMTPE
+#column int[] PMTXPEVector
+#column int[] PMTYPEVector
+#column int[] PMTZPEVector
+#column double[] PhotonWavelength
+#column int[] PMTXPosition
+#column int[] PMTYPosition
+#column int[] PMTZPosition
+#column double[] PhotonTimeFromEventStart
+0,0,4,1,-0.002,-0.002,-0.002,0,43.3605,43.3605,0,0,5.7817,1,25,14,16,5.7817,3,3,3,8;0;100;5;5;5;0;5;5;5;5;5;5;5;5;5;5;5;5;5;5;5;5;5;5,2.05547;2.72569;2.91534e-06;5.54776e-06;5.94952e-06;1.64075e-05;1.25127e-05;3.54287e-05;0.0002126;1.87665e-06;0.000122287;0.000428808;0.000412557;1.11578e-33;0.000226769;0.000791577;4.05536e-09;4.13074e-22;0.00145497;0.00318553;0.115075;0.41943;0.0210124;0.385606;0.0525006,8.08055;8.08913;9.83579;7.65681;7.32526;6.90129;4.50663;4.66766;5.35692;5.76564;5.7987;6.04158;6.06075;6.17629;6.17626;6.17624;6.17623;6.17621;6.17621;5.72861;5.77125;5.79349;5.79362;3.56028;3.56043,-0.775581;-0.751573;19.1225;-0.454447;0.533378;0.988495;1.71508;1.87762;1.97526;1.52967;1.48845;-0.193603;-0.218699;-0.376313;-0.376307;-0.376294;-0.376293;-0.376293;-0.376295;-1.28865;-1.42501;-1.3698;-1.36982;-0.000853206;-0.000736116,-0.801776;-0.802402;-4.54634;-0.892023;-1.40029;-1.35297;-2.66712;-2.42467;-2.17715;-2.17867;-2.17936;-2.48764;-2.47324;-2.14172;-2.14172;-2.1417;-2.14169;-2.14168;-2.14167;-1.66485;-1.47947;-1.41785;-1.41787;-0.000812717;-0.000691397,102.114;102.115;104.1;88.3785;65.582;55.3332;21.1365;17.6643;11.82;9.27914;9.0577;2.96401;2.87786;2.09434;2.09438;2.09443;2.09446;2.09449;2.09453;0.76593;0.562521;0.545024;0.545089;0.257895;0.257966,1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1,0;6;6;6;6;2;2;3;4;3;3;4;4;2;5;5,2;3;4;3;2;0;0;0;0;6;6;6;4;5;3;5,3;2;2;3;4;2;4;1;2;2;4;4;0;6;6;6,0;0;0;0;0;0;0;0;0;0;0;0;0;0,3;4;4;3;2;2;4;0;2;6;6;6;5;3,0;0;6;6;0;5;4;2;0;2;4;3;3;6,1;2;4;2;2;6;0;3;4;4;2;2;6;4,104.762;103.776;105.329;103.428;104.484;106.091;107.076;106.086;104.811;110.254;107.818;104.022;104.263;107.848

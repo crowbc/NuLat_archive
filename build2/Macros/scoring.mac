@@ -1,0 +1,43 @@
+/run/initialize
+
+########################################
+#
+# define scoring mesh
+#
+/score/create/boxMesh boxMesh_1
+#
+#Create a mesh large as the box
+/score/mesh/boxSize 150. 30. 50. cm
+#Position it over the box
+/score/mesh/translate/xyz 0 0 8 m
+#mesh voxel size of 5cm
+/score/mesh/nBin 30 6 10
+#
+/score/quantity/energyDeposit eDep
+/score/quantity/nOfStep nOfStepGamma
+/score/filter/particle gammaFilter gamma
+/score/quantity/nOfStep nOfStepEMinus
+/score/filter/particle eMinusFilter e-
+/score/quantity/nOfStep nOfStepEPlus
+/score/filter/particle ePlusFilter e+
+#
+/score/close
+#
+/score/list
+
+/vis/disable
+/run/verbose 1
+/gun/particle e-
+/run/beamOn 2000
+/vis/enable
+
+/vis/viewer/panTo -6 3 m
+/vis/viewer/zoomTo 4
+#/vis/viewer/set/viewpointThetaPhi 45 20
+########################################
+#
+# Dump scores to a file
+#
+/score/dumpQuantityToFile boxMesh_1 nOfStepGamma nOfStepGamma.txt
+#
+#/control/execute draw.mac

@@ -1,0 +1,8 @@
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/install/strip.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/install/local.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/install.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/list_install_components.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/rebuild_cache.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/edit_cache.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/Tutorial.dir
+/home/local1/Downloads/NuLat-wrangler-master/Source_NuLat/build/CMakeFiles/NuLat.dir

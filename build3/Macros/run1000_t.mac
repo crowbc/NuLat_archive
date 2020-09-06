@@ -1,0 +1,8 @@
+# Macro file for testing
+
+/tracking/verbose 3
+/run/verbose 1
+#/run/numberOfThreads 1
+/run/initialize
+/run/beamOn 1
+#

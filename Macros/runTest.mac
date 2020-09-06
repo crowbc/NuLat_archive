@@ -1,0 +1,7 @@
+# Macro file for testing
+/NuLat/gun/eventType IBDTest
+/run/verbose 1
+/run/numberOfThreads 1
+/run/initialize
+/run/beamOn 1
+#

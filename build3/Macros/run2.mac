@@ -1,0 +1,34 @@
+# Macro file for example tutorial
+# 
+# To be run preferably in batch, without graphics:
+# % exampletutorial Macros/run2.mac
+#
+#  turn off randomization 
+#
+/tutorial/generator/randomizePrimary FALSE
+/tutorial/generator/sigmaMomentum 0. 
+/tutorial/generator/sigmaAngle 0.
+/run/verbose 1
+/run/printProgress 0
+#
+/tutorial/detector/armAngle 30. deg
+/gun/particle proton
+/tutorial/generator/momentum 100. GeV
+/tutorial/field/value 100. tesla
+/analysis/setFileName tutorial_proton
+/run/beamOn 30
+#
+/tutorial/detector/armAngle 60. deg
+/gun/particle pi+
+/tutorial/generator/momentum 100. GeV
+/tutorial/field/value 200. tesla
+/analysis/setFileName tutorial_pi+
+/run/beamOn 30
+#
+/gun/particle e+
+/tutorial/detector/armAngle 30. deg
+/tutorial/generator/momentum 100. GeV
+/tutorial/field/value 100. tesla
+/analysis/setFileName tutorial_e+
+/run/beamOn 30
+

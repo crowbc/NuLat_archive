@@ -1,0 +1,174 @@
+
+    if (argc < 3 && argc != 1)
+    {
+        puts("Usage: ./file_converter SOURCE_FILE DESTINATION_FILE");
+        exit(1);
+    }
+.
+.
+.
+.
+.
+.
+.
+
+
+  ofstream myfile;
+  myfile.open ("test.dat", ios::app);
+    myfile << " " << 
+      -1.0 << " " <<
+      -1.0 << " " <<
+      -1.0 << " " <<
+      -1.0 << " " <<
+      -1.0 << " " <<
+      -1.0 << " " << G4endl <<
+      "# #Cells" << G4endl <<
+      "0" << G4endl;
+      
+  myfile.close();
+
+    if (argc == 3)
+    {
+    convertToCounted("test.dat", argv[2]);
+    }
+.
+.
+.
+.
+.
+
+
+int convertToCounted(char source_filename[], char destination_name[])
+{   
+    //Creates a directory and sets permissions to 777
+    //If other permissions are desired see: http://www.gnu.org/software/libc/manual/html_node/Permission-Bits.html#Permission-Bits
+    int status;
+    
+    status = mkdir("data", S_IRWXU | S_IRWXG | S_IRWXO);
+    if (status == -1 && errno != EEXIST)
+    {
+        return -3;
+    }
+    
+    char * destination_directory_name;
+    destination_directory_name = (char *) malloc((strlen(destination_name) + 6) * sizeof(char)); //Add 6 for "data/" + NULL character
+    sprintf(destination_directory_name, "data/%s", destination_name);
+    status = mkdir(destination_directory_name, S_IRWXU | S_IRWXG | S_IRWXO);
+    if (status == -1 && errno != EEXIST)
+    {
+        return -4;
+    }
+    
+    int file_count = 1;
+    char * destination_filename;
+    
+    //+ 1:"/", 11:"_000000000#", 4:".dat"
+    destination_filename = (char *) malloc((strlen(destination_name) + 6 + strlen(destination_name) + 16) * sizeof(char));
+    sprintf(destination_filename, "%s/%s_%.10d.dat", destination_directory_name, destination_name, file_count);
+    
+    char * file_list_filename;
+//    file_list_filename = (char *) malloc((strlen(destination_name) + 10) * sizeof(char));
+    file_list_filename = (char *) malloc((strlen(destination_name) + 6 + strlen(destination_name) + 5) * sizeof(char));
+    sprintf(file_list_filename, "%s/%s.dat", destination_directory_name, destination_name);
+    
+    FILE * source;
+    FILE * destination;
+    FILE * file_list;
+    
+    source = fopen(source_filename, "rb");
+    if (source == NULL)
+    {
+        return -1;
+    }
+    
+    destination = fopen(destination_filename, "wb");
+    if (destination == NULL)
+    {
+        return -2;
+    }
+    
+    file_list = fopen(file_list_filename, "wb");
+    if (file_list == NULL)
+    {
+        return -5;
+    }
+    fprintf(file_list, "%s\n", destination_filename);
+    
+    char line[200];
+    int counting = 0;
+    int event_count = 0;
+    int deposit_count = 0;
+    int particle_id;
+    int deposit_start_position;
+    int measured_events = 0;
+    
+    
+    while (fgets(line, 200, source) != 0)
+    {
+        if (line[0] == '#' && counting == 0)
+        {
+            if (strncmp((line + 2), "#Deposits", 9) == 0)
+            {
+                deposit_start_position = ftell(source);
+                deposit_count = 0;
+                counting = 1;
+            }
+            else if (strncmp(line, "#Event", 6) == 0)
+            {
+                event_count++;
+                if ((event_count - 1) / file_count >= 1000)
+                {
+                    fclose(destination);
+                    file_count++;
+                    sprintf(destination_filename, "%s/%s_%.10d.dat", destination_directory_name, destination_name, file_count);
+                    destination = fopen(destination_filename, "wb");
+                    if (destination == NULL)
+                    {
+                        return -2;
+                    }
+                    fprintf(file_list, "%s\n", destination_filename);
+                }
+            }
+        }
+        if (counting == 1)
+        {
+            if (line[0] != '#')
+            {
+                if (sscanf(line, "%i", &particle_id) > 0 && particle_id == -1)
+                {
+                    counting = 0;
+                    fseek(source, deposit_start_position, SEEK_SET);
+                    fputs("# #Deposits\n", destination);
+                    fprintf(destination, "%d\n", deposit_count);
+                    measured_events++;
+                }
+                else
+                {
+                    deposit_count++;
+                }
+            }
+        }
+        else
+        {
+            if (measured_events == event_count && sscanf(line, "%i", &particle_id) > 0
+                && particle_id == -1)
+            {
+                
+            }
+            else
+            {
+                fputs(line, destination);
+            }
+        }
+    }
+    fclose(destination);
+    fclose(source);
+    fclose(file_list);
+    free(destination_directory_name);
+    free(destination_filename);
+    free(file_list_filename);
+
+  system("rm  test.dat");
+    return 0;
+}
+
