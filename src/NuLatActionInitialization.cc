@@ -1,3 +1,7 @@
+//ACTION INITIALIZATION FILE
+//Sets up actions, putting together parts of simulation
+//(Highly related files: RunAction.cc/.hh, EventAction.cc/.hh, PrimaryParticleGenerator.cc/.hh)
+
 #include "NuLatActionInitialization.hh"
 #include "NuLatPrimaryParticleGenerator.hh"
 #include "NuLatRunAction.hh"
@@ -30,7 +34,7 @@ void NuLatActionInitialization::BuildForMaster() const
 void NuLatActionInitialization::Build() const
 {
 
-//Setting Primary Particle Generator (controlls initial particle creation), RunAction (Actions at beggining and end of run), and Event Action (Actions at beggining and end of each event) programs
+//Setting Primary Particle Generator (controls initial particle creation), RunAction (Actions at beggining and end of run), and Event Action (Actions at beggining and end of each event) programs
 //RunAction and Event Action mainly used for data collecting and filling tables
   NuLatPrimaryParticleGenerator* NuLatPrimaryParticleGenerator001 = new NuLatPrimaryParticleGenerator();
   NuLatRunAction* NuLatRunAction001 = new NuLatRunAction();
@@ -39,7 +43,8 @@ void NuLatActionInitialization::Build() const
   SetUserAction(NuLatPrimaryParticleGenerator001);
   SetUserAction(NuLatRunAction001);
   SetUserAction(NuLatEventAction001);
-  NuLatEventAction001->NuLatRunActionLocal=NuLatRunAction001;
+  
+  NuLatEventAction001->NuLatRunActionLocal=NuLatRunAction001;   //CHECK: UNKNOWN
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

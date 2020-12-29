@@ -1,3 +1,6 @@
+//PHOTOCATHODE HIT HEADER FILE
+//Contains functions used in data collection
+
 #ifndef NuLatPhotoCathodeHit_h
 #define NuLatPhotoCathodeHit_h 1
 
@@ -44,25 +47,36 @@ public:
   virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;
   virtual std::vector<G4AttValue>* CreateAttValues() const;
 
-    
+  //PMT ID  
   void SetPMTID(G4int z) { fPMTID = z; }
   G4int GetPMTID() const { return fPMTID; }
-
+  
+  //Voxel Hits: Energy of absorptions in Voxels
   void SetPEHits(G4int de) { peHits = de; }
   void AddPEHits(G4int de) { peHits += de;}
   G4double GetPEHits() const { return peHits; }
+  
+  //PMT Wavelength: Not yet used
   G4double GetWavelength() const { return Wavelength; }
 
+  //Position of Hit
   void SetPos(G4ThreeVector xyz) { fPos = xyz; }
   G4ThreeVector GetPos() const { return fPos; }
-
   void SetRot(G4RotationMatrix rmat) { fRot = rmat; }
   G4RotationMatrix GetRot() const { return fRot; }
 
+  //Logical Volume of Hit: Identifies which PMT or Voxel event occured in
   void SetLogV(G4LogicalVolume* val) { fPLogV = val; }
   const G4LogicalVolume* GetLogV() const { return fPLogV; }
-
+  
+  
+  
+  
+  
+  
+  //Data being saved to lists when hit occurs
   void PushPhotonPMTHitParticleTypeIDNumber(G4int ID) { PhotonPMTHitParticleTypeIDNumber.push_back(ID); }
+  void PushPhotonPMTHitEnergy(G4double energy)		{ PhotonPMTHitEnergy.push_back(energy); }
   void PushWavelength(G4double de)                  { PhotonPMTHitWavelength.push_back(de); }
   void PushPhotonPMTXHit(G4int X)          { PhotonPMTXHit.push_back(X); }
   void PushPhotonPMTYHit(G4int Y)          { PhotonPMTYHit.push_back(Y); }
@@ -70,6 +84,7 @@ public:
   void PushPhotonPMTHitTime(G4double time)            { PhotonPMTHitTime.push_back(time); }
     
   std::vector<G4int>     GetPhotonPMTHitParticleTypeIDNumberVector() { return  PhotonPMTHitParticleTypeIDNumber; }
+  std::vector<G4double> GetPhotonPMTHitEnergyVector() { return PhotonPMTHitEnergy; }
   std::vector<G4double>  GetPhotonPMTHitWavelengthVector()                     { return  PhotonPMTHitWavelength; }
   std::vector<G4int>  GetPhotonPMTXHitVector()            { return  PhotonPMTXHit; }
   std::vector<G4int>  GetPhotonPMTYHitVector()            { return  PhotonPMTYHit; }
@@ -77,6 +92,7 @@ public:
   std::vector<G4double>  GetPhotonPMTHitTimeVector()                 { return  PhotonPMTHitTime; }
 
   void ClearPhotonPMTHitParticleTypeIDNumberVector() { PhotonPMTHitParticleTypeIDNumber.clear(); }
+  void ClearPhotonPMTHitEnergyVector() 		{ PhotonPMTHitEnergy.clear(); }
   void ClearPhotonPMTHitWavelengthVector()                      { PhotonPMTHitWavelength.clear(); }
   void ClearPhotonPMTXHitVector()             { PhotonPMTXHit.clear(); }
   void ClearPhotonPMTYHitVector()             { PhotonPMTYHit.clear(); }
@@ -96,6 +112,7 @@ private:
   static std::vector<G4int> PMTYPE;
   static std::vector<G4int> PMTZPE;
   static std::vector<G4double>  PhotonPMTHitWavelength;
+  static std::vector<G4double> PhotonPMTHitEnergy;
   static std::vector<G4int>  PhotonPMTXHit;
   static std::vector<G4int>  PhotonPMTYHit;
   static std::vector<G4int>  PhotonPMTZHit;

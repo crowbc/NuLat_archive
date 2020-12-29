@@ -1,3 +1,6 @@
+//VOXEL HIT FILE
+//Records data on hit (not fully understood)
+
 // needs work, this is were to record cell hits when we implement individual cells with optical tracking
 #include "NuLatVoxelHit.hh"
 
@@ -39,6 +42,9 @@ vector<G4double>  NuLatVoxelHit::eDepPositionX;
 vector<G4double>  NuLatVoxelHit::eDepPositionY;
 vector<G4double>  NuLatVoxelHit::eDepPositionZ;
 vector<G4double>  NuLatVoxelHit::eDepTime;
+vector<G4double>  NuLatVoxelHit::initialMomentumX;
+vector<G4double>  NuLatVoxelHit::initialMomentumY;
+vector<G4double>  NuLatVoxelHit::initialMomentumZ;
 
 
 

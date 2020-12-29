@@ -1,4 +1,6 @@
-//
+//PMT LIGHT GUIDE PARAMETERIZATION
+//Used in building detector with many copied PMT/LightGuide setups
+
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *

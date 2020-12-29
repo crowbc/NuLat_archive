@@ -1,3 +1,6 @@
+//VOXEL HIT HEADER FILE
+//Contains functions used in data collection
+
 // needs work, this is were to record cell hits when we implement individual cells with optical tracking
 #ifndef NuLatVoxelHit_h
 #define NuLatVoxelHit_h 1
@@ -45,29 +48,40 @@ public:
   virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;
   virtual std::vector<G4AttValue>* CreateAttValues() const;
 
-    
+  //Voxel ID: which cell event occured in  
   void SetCellID(G4int z) { fCellID = z; }
   G4int GetCellID() const { return fCellID; }
-
+  
+  //Energy deposited
   void SetEdep(G4double de) { eDep = de; }
   void AddEdep(G4double de) { eDep += de;}
   G4double GetEdep() const { return eDep; }
-
+  
+  //Position of event
   void SetPos(G4ThreeVector xyz) { fPos = xyz; }
   G4ThreeVector GetPos() const { return fPos; }
-
   void SetRot(G4RotationMatrix rmat) { fRot = rmat; }
   G4RotationMatrix GetRot() const { return fRot; }
 
+  //Logical Volume of event: Identifies which volume
   void SetLogV(G4LogicalVolume* val) { fPLogV = val; }
   const G4LogicalVolume* GetLogV() const { return fPLogV; }
 
+
+
+
+
+
+  //Data being saves to lists when hit occurs
   void PushEDepParticleTypeIDNumber(G4int ID) { eDepParticleTypeIDNumber.push_back(ID); }
   void PushEDep(G4double de)                  { eDepEDep.push_back(de); }
   void PushEDepPositionX(G4double X)          { eDepPositionX.push_back(X); }
   void PushEDepPositionY(G4double Y)          { eDepPositionY.push_back(Y); }
   void PushEDepPositionZ(G4double Z)          { eDepPositionZ.push_back(Z); }
   void PushEDepTime(G4double time)            { eDepTime.push_back(time); }
+  void PushInitialMomentumX(G4double pX)          { initialMomentumX.push_back(pX); }
+  void PushInitialMomentumY(G4double pY)          { initialMomentumY.push_back(pY); }
+  void PushInitialMomentumZ(G4double pZ)          { initialMomentumZ.push_back(pZ); }    
     
   std::vector<G4int>     GetEDepParticleTypeIDNumberVector() { return  eDepParticleTypeIDNumber; }
   std::vector<G4double>  GetEDepVector()                     { return  eDepEDep; }
@@ -75,6 +89,9 @@ public:
   std::vector<G4double>  GetEDepPositionYVector()            { return  eDepPositionY; }
   std::vector<G4double>  GetEDepPositionZVector()            { return  eDepPositionZ; }
   std::vector<G4double>  GetEDepTimeVector()                 { return  eDepTime; }
+  std::vector<G4double>  GetInitialMomentumXVector()            { return  initialMomentumX; }
+  std::vector<G4double>  GetInitialMomentumYVector()            { return  initialMomentumY; }
+  std::vector<G4double>  GetInitialMomentumZVector()            { return  initialMomentumZ; }  
     
   void ClearEDepParticleTypeIDNumberVector() { eDepParticleTypeIDNumber.clear(); }
   void ClearEDepVector()                      { eDepEDep.clear(); }
@@ -82,7 +99,9 @@ public:
   void ClearEDepPositionYVector()             { eDepPositionY.clear(); }
   void ClearEDepPositionZVector()             { eDepPositionZ.clear(); }
   void ClearEDepTimeVector()                  { eDepTime.clear(); }
-    
+  void ClearInitialMomentumXVector()             { initialMomentumX.clear(); }
+  void ClearInitialMomentumYVector()             { initialMomentumY.clear(); }
+  void ClearInitialMomentumZVector()             { initialMomentumZ.clear(); }    
 
     
 private:
@@ -95,6 +114,9 @@ private:
   static std::vector<G4double>  eDepPositionY;
   static std::vector<G4double>  eDepPositionZ;
   static std::vector<G4double>  eDepTime;
+  static std::vector<G4double>  initialMomentumX;
+  static std::vector<G4double>  initialMomentumY;
+  static std::vector<G4double>  initialMomentumZ;  
 
   G4ThreeVector fPos;
   G4RotationMatrix fRot;

@@ -1,3 +1,7 @@
+//MATERIALS HEADER
+//Contains information on all materials to be used in simulations
+
+
 #ifndef Materials_H
 
 #define Materials_H 1
@@ -57,7 +61,7 @@ class Materials
   public: 
     Materials()
     {
-    
+        //Photon energy range for energy dependent material responses
         const G4int numEntries = 182;
         G4double photonEnergy[numEntries] = {
           2.034*eV, 2.068*eV, 2.103*eV, 2.139*eV, 2.177*eV, 2.216*eV, 2.256*eV, 2.298*eV, 2.341*eV, 2.386*eV, //10
@@ -79,6 +83,8 @@ class Materials
           4.813*eV, 4.828*eV, 4.840*eV, 4.853*eV, 4.869*eV, 4.886*eV, 4.905*eV, 4.928*eV, 4.953*eV, 5.015*eV, //170
           5.099*eV, 5.143*eV, 5.174*eV, 5.202*eV, 5.235*eV, 5.265*eV, 5.294*eV, 5.330*eV, 5.413*eV, 5.493*eV, //180
           5.556*eV, 5.611*eV}; //182
+
+
 
       //***************************
       //*        Materials        *
@@ -107,7 +113,7 @@ class Materials
 
       G4double z;  // atomic number
 
-      //Hydrogen
+      
       z = 1.0;
       elH  = new G4Element("Hydrogen", "H" , z, a_elH);
       
@@ -174,7 +180,8 @@ class Materials
       pseudocumene = new G4Material("Pseudocumene",density,numberOfElements);
       pseudocumene->AddElement(elC, 9);
       pseudocumene->AddElement(elH, 12);
-
+      
+      //TeflonFEP
       density = 2.150*g/cm3;
       teflonFEP = new G4Material("Teflon FEP",density,2);
       teflonFEP->AddElement(elF, 10);
@@ -195,16 +202,18 @@ class Materials
       for(int i=0;i<numEntries;i++)
       {
          G4double wavelength = ((1240./photonEnergy[i])*nm)*static_cast<G4double>(pow(10.,-3.));
-         refractiveIndexAcrylic[i] = sqrt( 1.866120+
-                                           0.2085454*pow(wavelength,2.)+0.4806770*pow(wavelength,-2.)-
-                                           0.1840693*pow(wavelength,-4.)+0.03424849*pow(wavelength,-6.)-
-                                           0.002340796*pow(wavelength,-8.));
+         refractiveIndexAcrylic[i] = 1.492;
+         
+//         				      sqrt( 1.866120+
+//                                           0.2085454*pow(wavelength,2.)+0.4806770*pow(wavelength,-2.)-
+//                                           0.1840693*pow(wavelength,-4.)+0.03424849*pow(wavelength,-6.)-
+//                                           0.002340796*pow(wavelength,-8.));
          absorptionAcrylic[i] = 10.0*m;  //absorptions will need to be tuned to data
-         if(refractiveIndexAcrylic[i]<1.49244 || refractiveIndexAcrylic[i]!=refractiveIndexAcrylic[i])
-         //this is removing the nan from Cauchy equation... look for emperical measurments
-         {
-           refractiveIndexAcrylic[i]=1.49244;
-         }
+//         if(refractiveIndexAcrylic[i]<1.49244 || refractiveIndexAcrylic[i]!=refractiveIndexAcrylic[i])
+//         //this is removing the nan from Cauchy equation... look for emperical measurments
+//         {
+//           refractiveIndexAcrylic[i]=1.49244;
+//         }
          G4cout << wavelength*1000 << "  " << refractiveIndexAcrylic[i] << G4endl;
       }
       G4cout << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl << G4endl;
@@ -212,20 +221,25 @@ class Materials
       G4MaterialPropertiesTable *acrylicMat = new G4MaterialPropertiesTable();
       acrylicMat->AddProperty("RINDEX",photonEnergy,refractiveIndexAcrylic,numEntries);
       acrylicMat->AddProperty("ABSLENGTH", photonEnergy, absorptionAcrylic, numEntries);
-      acrylic->SetMaterialPropertiesTable(acrylicMat);//I hope this works as I only want the acrylic to have
+      acrylic->SetMaterialPropertiesTable(acrylicMat);
 
+
+      //Lead
       density = 11.35*g/cm3;
       lead = new G4Material( "Lead", density, 1);
       lead->AddElement(elPb, 1);
-
+      
+      //Limestone
       density = 2360*kg/m3;
       limestone = new G4Material("Limestone",density,3);
       limestone->AddElement(elCa, 2);
       limestone->AddElement(elC, 8);
       limestone->AddElement(elO, 5);
-
-	    vacuum = new G4Material( "vacuum", 1., 1.008*g/mole, 1.e-25*g/cm3,kStateGas, 
+      
+      //Vacuum
+      vacuum = new G4Material( "vacuum", 1., 1.008*g/mole, 1.e-25*g/cm3,kStateGas, 
 			273*kelvin, 3.8e-18*pascal );
+
 
  //   Artificial Photocathode material density set such that 20nm ->1mm
       BeCuPhotoCathode = new G4Material( "BeCuPhotoCathode", 5.0/50000.0 * g/cm3, 2 );
@@ -243,11 +257,12 @@ class Materials
       BeCuPhotoCathodeMat->AddProperty("ABSLENGTH", photonEnergy, absorptionBeCuPhotoCathode, numEntries);
       BeCuPhotoCathode->SetMaterialPropertiesTable( BeCuPhotoCathodeMat );
 
- //   BorosilicateGlass Material Properties
+
+      //BorosilicateGlass Material Properties
       borosilicateGlass = new G4Material( "BorosilicateGlass", 2.65*g/cm3, 2 );
       borosilicateGlass->AddElement( elSi, 1 );
       borosilicateGlass->AddElement( elO, 2 );
-//    BorosilicateGlass Optical Properties
+      //BorosilicateGlass Optical Properties
       G4double refractiveIndexBorosilicateGlass[numEntries];
       G4double absorptionBorosilicateGlass[numEntries];
       for(int i=0; i<numEntries; i++){
@@ -288,7 +303,7 @@ class Materials
       G4double absorptionAir[numEntries];
       for(int i=0; i<numEntries; i++){
             refractiveIndexAir[i] = 1.003;
-            absorptionAir[i] = 100.*m;
+            absorptionAir[i] = 100*m;
       }
       G4MaterialPropertiesTable *airMat = new G4MaterialPropertiesTable();
       airMat->AddProperty("RINDEX", photonEnergy, refractiveIndexAir, numEntries );
@@ -335,7 +350,7 @@ class Materials
       for(int i=0; i<numEntries; i++)  {
       //refractive index assumes PVT, absorption is something to be tuned
       G4double wavelength = (1240./photonEnergy[i])*nm;
-      refractiveIndexPlastic[i] = sqrt(1.592*1.592 + 20690./(wavelength*wavelength-196.6*196.6));
+      refractiveIndexPlastic[i] = 1.58;
       absorptionPlastic[i]=90.*cm;
       }
   
@@ -367,7 +382,7 @@ class Materials
       PVT_MPT->AddProperty("ABSLENGTH", photonEnergy, absorptionPlastic, numEntries); 
       PVT_MPT->AddProperty("FASTCOMPONENT",photonEnergy, fastComponentPlastic, numEntries);
       //add a slow compontent at some point
-      PVT_MPT->AddConstProperty("SCINTILLATIONYIELD",100./MeV);//10000./MeV);
+      PVT_MPT->AddConstProperty("SCINTILLATIONYIELD",10000./MeV);//10000./MeV);
       PVT_MPT->AddConstProperty("RESOLUTIONSCALE",1.0);    
       PVT_MPT->AddConstProperty("FASTTIMECONSTANT", 2.1*ns);    
       PVT_MPT->AddConstProperty("YIELDRATIO",1.);
@@ -389,7 +404,7 @@ class Materials
       
     G4cout << Li6PVT_1TenthsOfAPercent << G4endl << G4endl << G4endl;
     
-    // 0.2% by wt 6Li loaded polyvinyltoluene  
+      // 0.2% by wt 6Li loaded polyvinyltoluene  
       Li6_fractionmass = 0.002;
       H_fractionmass = C_StandardFractionMass/(1.0+Li6_fractionmass);
       C_fractionmass = H_StandardFractionMass/(1.0+Li6_fractionmass);
@@ -451,7 +466,7 @@ class Materials
       //materials
       //Water, Steel, Quartz, Stainless steel (304, 316, etc), tungsten, teflon (all others), polyester, polyethyliene..
       
-      
+    //MuMetal  
     muMetal = new G4Material( "muMetal",8.77*g/cm3,4);
     muMetal->AddElement(elNi,77.*perCent);
     muMetal->AddElement(elFe,16.*perCent);

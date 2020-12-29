@@ -1,3 +1,5 @@
+//PRIMARY PARTICLE GENERATOR HEADER FILE
+
 #include <time.h>
 #ifndef NuLatPrimaryParticleGenerator_H
 #define NuLatPrimaryParticleGenerator_H 1
@@ -31,6 +33,7 @@ class NuLatPrimaryParticleGenerator : public G4VUserPrimaryGeneratorAction
 		G4double GetRndSpecialNuclearMaterialNeutronFissionEnergy();
 		void GenerateTestParticle( G4Event* event, G4ParticleDefinition* particleToRun );
 		void GenerateIBDEvent( G4Event* event );
+		void GeneratePhotonEvent( G4Event* event );
 
 		G4ParticleGun* fParticleGun;
 
@@ -43,7 +46,8 @@ class NuLatPrimaryParticleGenerator : public G4VUserPrimaryGeneratorAction
 		G4ParticleDefinition* fPion;
 		G4ParticleDefinition* fKaon;
 		G4ParticleDefinition* fProton;
-
+		G4ParticleDefinition* fOpticalphoton;
+		
 		
 		G4String EventTypeFlag;
 		

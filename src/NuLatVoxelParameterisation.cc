@@ -1,6 +1,5 @@
-
-/// \file NuLatVoxelParameterisation.cc
-/// \brief Implementation of the NuLatVoxelParameterisation class
+//VOXEL PARAMETERIZATION FILE
+//Used in building detector with many copied Voxel setups
 
 
 

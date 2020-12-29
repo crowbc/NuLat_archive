@@ -1,3 +1,7 @@
+//RUN ACTION FILE
+//Actions to do at Beginning/During/After Run
+//Sets up Data structures and saves results
+
 #include "NuLatRunAction.hh"
 #include "Analysis.hh"
 #include "NuLatRun.hh"
@@ -11,10 +15,11 @@
 using namespace std;
 
 
+//Constructor
 NuLatRunAction::NuLatRunAction()
  : G4UserRunAction()
 {
-
+  //Gets analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   G4cout << G4endl << G4endl
@@ -23,72 +28,91 @@ NuLatRunAction::NuLatRunAction()
 
 
 
-  // Default settings
+  //Setting FileName and verbose level
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetFileName("NuLatOutput");
 
-  // Creating 1D histograms
-  analysisManager
-    ->CreateH1("InitialEnergy","InitialEnergy", 100, 0., 10000);                            // h1 Id = 0
 
-  analysisManager->CreateNtuple("NuLatEvent", "NuLatEvent");
-  analysisManager->CreateNtupleIColumn(0, "EventID");                                       // column Id = 0
-  analysisManager->CreateNtupleIColumn(0, "EventSeed");                                     // column Id = 1
+
+
+//Collection of run values (what we start with and total counts in each file)
+  analysisManager->CreateNtuple("NuLatEvent", "NuLatEvent");     
+  analysisManager->CreateNtupleIColumn(0, "EventID");                                      // column Id = 0 
+  analysisManager->CreateNtupleIColumn(0, "EventSeed");                                        // column Id = 1
   analysisManager->CreateNtupleIColumn(0, "PrimaryParticleIDNumber");                       // column Id = 2
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleKEnergy");                        // column Id = 3
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexX");                        // column Id = 4
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexY");                        // column Id = 5
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexZ");                        // column Id = 6
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexT");                        // column Id = 7
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumMagnitude");              // column Id = 8
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumX");                      // column Id = 9
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumY");                      // column Id = 10
-  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumZ");                      // column Id = 11
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleKEnergy");                            // column Id = 3
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexX");                          // column Id = 4
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexY");                          // column Id = 5
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexZ");                            // column Id = 6
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleVertexT");                           // column Id = 7
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumMagnitude");                    // column Id = 8
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumX");                         // column Id = 9
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumY");                         // column Id = 10
+  analysisManager->CreateNtupleDColumn(0, "PrimaryParticleMomentumZ");                          // column Id = 11
   
   
-  analysisManager->CreateNtupleDColumn(0, "TotalEnergyDeposited");                          // column Id = 12
-  analysisManager->CreateNtupleIColumn(0, "NumberOfCellsHit");                              // column Id = 13
-  analysisManager->CreateNtupleIColumn(0, "NumberOfEnergyDepositions");                     // column Id = 14
-  analysisManager->CreateNtupleIColumn(0, "NumberOfPhotonHits");                            // column Id = 15
-  analysisManager->CreateNtupleIColumn(0, "NumberOfPMTHits");                               // column Id = 16
+  analysisManager->CreateNtupleDColumn(0, "TotalEnergyDeposited");                              // column Id = 12
+  analysisManager->CreateNtupleIColumn(0, "NumberOfCellsHit");                                    // column Id = 13
+  analysisManager->CreateNtupleIColumn(0, "NumberOfEnergyDepositions");                        // column Id = 14
+  analysisManager->CreateNtupleIColumn(0, "NumberOfPhotonHits");                           // column Id = 15
+  analysisManager->CreateNtupleIColumn(0, "NumberOfPMTHits");                                  // column Id = 16
+  analysisManager->CreateNtupleIColumn(0, "CenterCubePMTHits");    
+  analysisManager->CreateNtupleDColumn(0, "CenterCubeDirectHits");      
+  
+  analysisManager->FinishNtuple(0);  
+
+
+//Collection of each Voxel's total counts
+//CellEdep originally collected in Voxel Sensitive Detector then pushed through EventAction, Rest created in EventAction  
+  analysisManager->CreateNtuple("VoxelHits", "VoxelHits");     
+  analysisManager->CreateNtupleDColumn(1, "CellEdep");                            // column Id = 17
+  analysisManager->CreateNtupleIColumn(1, "CellXHitVector");                       // column Id = 18
+  analysisManager->CreateNtupleIColumn(1, "CellYHitVector");                       // column Id = 19
+  analysisManager->CreateNtupleIColumn(1, "CellZHitVector");                         // column Id = 20
+  analysisManager->FinishNtuple(1);
   
   
+//Collection of each particle in Voxels
+//Oringally collected in Voxel Sensitive Detector, then pushed through EventAction
+  analysisManager->CreateNtuple("ParticlesInVoxel", "ParticlesInVoxel");     
+  analysisManager->CreateNtupleIColumn(2, "ParticleIDNumber");      // column Id = 21
+  analysisManager->CreateNtupleDColumn(2, "ParticleEDep");                   // column Id = 22
+  analysisManager->CreateNtupleDColumn(2, "XPosition");                      // column Id = 23
+  analysisManager->CreateNtupleDColumn(2, "YPosition");                      // column Id = 24
+  analysisManager->CreateNtupleDColumn(2, "ZPosition");                        // column Id = 25
+  analysisManager->CreateNtupleDColumn(2, "TimeFromEventStart");                     // column Id = 26
+  analysisManager->CreateNtupleDColumn(2, "XMomentum"); 
+  analysisManager->CreateNtupleDColumn(2, "YMomentum"); 
+  analysisManager->CreateNtupleDColumn(2, "ZMomentum");   
+  analysisManager->FinishNtuple(2);
+  
+
+//Collection for each PMT's total counts  
+//PMTPE originally collected in PMT Sensitive Detector then pushed through EventAction, Rest created in EventAction
+  analysisManager->CreateNtuple("PMThits", "PMThits");     
+  analysisManager->CreateNtupleIColumn(3, "PMTPE");                                   //Number of Hits in a PMT
+  analysisManager->CreateNtupleIColumn(3, "PMTXPEVector");                            //X Position of PMT
+  analysisManager->CreateNtupleIColumn(3, "PMTYPEVector");                            //Y Position of PMT
+  analysisManager->CreateNtupleIColumn(3, "PMTZPEVector");                            //Z Position of PMT
+  analysisManager->FinishNtuple(3);
 
 
-  // Cell Vectors of length column Id = 13
-  analysisManager->CreateNtupleDColumn(0, "CellEdep", CellEnergyVector);                       // column Id = 17
-  analysisManager->CreateNtupleIColumn(0, "CellXHitVector", CellXHitVector);                   // column Id = 18
-  analysisManager->CreateNtupleIColumn(0, "CellYHitVector", CellYHitVector);                   // column Id = 19
-  analysisManager->CreateNtupleIColumn(0, "CellZHitVector", CellZHitVector);                   // column Id = 20
-
-  // Individual Energy Vectors of length column Id = 14
-  analysisManager->CreateNtupleIColumn(0, "ParticleIDNumber", EDepParticleTypeIDNumberVector); // column Id = 21
-  analysisManager->CreateNtupleDColumn(0, "ParticleEDep", EDepParticleEDepVector);             // column Id = 22
-  analysisManager->CreateNtupleDColumn(0, "XPosition", EDepPositionXVector);                   // column Id = 23
-  analysisManager->CreateNtupleDColumn(0, "YPosition", EDepPositionYVector);                   // column Id = 24
-  analysisManager->CreateNtupleDColumn(0, "ZPosition", EDepPositionZVector);                   // column Id = 25
-  analysisManager->CreateNtupleDColumn(0, "TimeFromEventStart", EDepTimeVector);               // column Id = 26
-
-  //
-  analysisManager->CreateNtupleIColumn(0, "PMTPE", PMTPEVector);                               // column Id = 27
-  analysisManager->CreateNtupleIColumn(0, "PMTXPEVector", PMTXPEVector);                       // column Id = 28
-  analysisManager->CreateNtupleIColumn(0, "PMTYPEVector", PMTYPEVector);                       // column Id = 29
-  analysisManager->CreateNtupleIColumn(0, "PMTZPEVector", PMTZPEVector);                       // column Id = 30
-
-  analysisManager->CreateNtupleDColumn(0, "PhotonWavelength", PhotonPMTHitWavelengthVector);   // column Id = 31
-  analysisManager->CreateNtupleIColumn(0, "PMTXPosition", PhotonPMTXHitVector);                // column Id = 32
-  analysisManager->CreateNtupleIColumn(0, "PMTYPosition", PhotonPMTYHitVector);                // column Id = 33
-  analysisManager->CreateNtupleIColumn(0, "PMTZPosition", PhotonPMTZHitVector);                // column Id = 34
-  analysisManager->CreateNtupleDColumn(0, "PhotonTimeFromEventStart", PhotonPMTHitTimeVector); // column Id = 35
-
-
-  analysisManager->FinishNtuple(0);
+//Collection of each photon event in PMTs
+//Collected lists saved in PMT Sensitive Detector
+  analysisManager->CreateNtuple("PhotonsInPMT", "PhotonsInPMT");     
+  analysisManager->CreateNtupleDColumn(4, "PhotonEnergy");
+  analysisManager->CreateNtupleDColumn(4, "PhotonWavelength");        // column Id = 31
+  analysisManager->CreateNtupleIColumn(4, "PMTXPosition");                   // column Id = 32
+  analysisManager->CreateNtupleIColumn(4, "PMTYPosition");                      // column Id = 33
+  analysisManager->CreateNtupleIColumn(4, "PMTZPosition");                     // column Id = 34
+  analysisManager->CreateNtupleDColumn(4, "PhotonTimeFromEventStart");      // column Id = 35
+  analysisManager->FinishNtuple(4);
 
 
 }
 
 
-
+//Destructor
 NuLatRunAction::~NuLatRunAction()
 {
 
@@ -96,7 +120,7 @@ NuLatRunAction::~NuLatRunAction()
 }
 
 
-
+//Beginning of Run Actions (opens data file)
 void NuLatRunAction::BeginOfRunAction(const G4Run* /*run*/)
 {
 
@@ -107,9 +131,25 @@ void NuLatRunAction::BeginOfRunAction(const G4Run* /*run*/)
 }
 
 
-
+//End of Run Actions (check for errors, write results, and close data file
 void NuLatRunAction::EndOfRunAction(const G4Run* run)
 {
+// Get analysis manager
+    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	const NuLatRun* myrun = dynamic_cast<const NuLatRun*>(run);
 	if ( myrun )
 	{
@@ -137,58 +177,14 @@ void NuLatRunAction::EndOfRunAction(const G4Run* run)
 		G4Exception("NuLatRunAction::EndOfRunAction()",
 			"Code001", JustWarning, msg);
 	}
-	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+//	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   analysisManager->Write();
   analysisManager->CloseFile();
 }
 
-
+//Starts Run
 G4Run* NuLatRunAction::GenerateRun() {
     return new NuLatRun;
 }
 
-/*
 
-  // Default settings
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetFileName("NuLatOutput");
-
-
-
-  analysisManager->CreateNtuple("NuLatEvent", "NuLatEvent");
-  analysisManager->CreateNtupleIColumn(0, "Event ID");                                         // column Id = 0
-  analysisManager->CreateNtupleIColumn(0, "Event Seed");                                       // column Id = 1
-  analysisManager->CreateNtupleIColumn(0, "Primary Particle ID Number");                       // column Id = 2
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle K Energy");                        // column Id = 3
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Vertex X");                        // column Id = 4
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Vertex Y");                        // column Id = 5
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Vertex Z");                        // column Id = 6
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Vertex T");                        // column Id = 7
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Momentum Magnitude");              // column Id = 8
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Momentum X");                      // column Id = 9
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Momentum Y");                      // column Id = 10
-  analysisManager->CreateNtupleDColumn(0, "Primary Particle Momentum Z");                      // column Id = 11
-  
-  
-  analysisManager->CreateNtupleDColumn(0, "Total Energy");                                     // column Id = 12
-  analysisManager->CreateNtupleIColumn(0, "Number Of Cells Hit");                              // column Id = 13
-  analysisManager->CreateNtupleIColumn(0, "Number Of Energy Depositions");                     // column Id = 14
-
-
-  // Cell Vectors of length column Id = 13
-  analysisManager->CreateNtupleDColumn(0, "CellEdep", CellEnergyVector);                       // column Id = 15
-  analysisManager->CreateNtupleIColumn(0, "CellXHitVector", CellXHitVector);                   // column Id = 16
-  analysisManager->CreateNtupleIColumn(0, "CellYHitVector", CellYHitVector);                   // column Id = 17
-  analysisManager->CreateNtupleIColumn(0, "CellZHitVector", CellZHitVector);                   // column Id = 18
-
-  // Individual Energy Vectors of length column Id = 14
-  analysisManager->CreateNtupleIColumn(0, "ParticleIDNumber", EDepParticleTypeIDNumberVector); // column Id = 19
-  analysisManager->CreateNtupleDColumn(0, "ParticleEDep", EDepParticleEDepVector);             // column Id = 20
-  analysisManager->CreateNtupleDColumn(0, "X Position", EDepPositionXVector);                  // column Id = 21
-  analysisManager->CreateNtupleDColumn(0, "Y Position", EDepPositionYVector);                  // column Id = 22
-  analysisManager->CreateNtupleDColumn(0, "Z Position", EDepPositionZVector);                  // column Id = 23
-  analysisManager->CreateNtupleDColumn(0, "Time From Event Start", EDepTimeVector);            // column Id = 24
-
-
-  analysisManager->FinishNtuple(0);
-*/

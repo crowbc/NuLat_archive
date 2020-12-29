@@ -1,3 +1,7 @@
+//VOXEL SENSITIVE DETECTOR FILE
+//Decribes Sensitive Region of Detection and what to do when hit
+
+
 //file needs work
 // hit proccessing / energy deposit processing
 #include <iostream>
@@ -109,9 +113,14 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
 
 
   // add energy deposit to this voxel
-  hit->AddEdep(edep);
 
 
+//  if (step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton" &&
+//      step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "OpAbsorption")
+//      {
+  if (step->GetTrack()->GetDefinition()->GetParticleName()!="opticalphoton"  )
+  {
+    hit->AddEdep(edep);  
   // push onto the appropriate vectors the
   // values associated with the energy deposit (EDep)
   hit->PushEDepParticleTypeIDNumber(ParticleNameToIDNumber(step));
@@ -120,7 +129,10 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
   hit->PushEDepPositionY(step->GetTrack()->GetPosition().y());
   hit->PushEDepPositionZ(step->GetTrack()->GetPosition().z());
   hit->PushEDepTime(step->GetTrack()->GetGlobalTime());
-
+  hit->PushInitialMomentumX(step->GetTrack()->GetVertexMomentumDirection().theta());
+  hit->PushInitialMomentumY(step->GetTrack()->GetVertexMomentumDirection().phi());
+  hit->PushInitialMomentumZ(step->GetTrack()->GetVertexMomentumDirection().z());  
+}
   return true;
 
 }
@@ -135,16 +147,16 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
 G4int NuLatVoxelSensitiveDetector::ParticleNameToIDNumber(G4Step*step)
 {
   G4int particleIDNumber;
-  if(step->GetTrack()->GetDefinition()->GetParticleName()=="gamma") 		      		particleIDNumber=1;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="e-") 		      	particleIDNumber=2;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="e+") 		      	particleIDNumber=3;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="neutron")       	particleIDNumber=4;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="proton")       	particleIDNumber=5;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="mu+") 		      	particleIDNumber=6;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="mu-") 		      	particleIDNumber=7;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="alpha") 	      	particleIDNumber=8;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="Li7") 			      particleIDNumber=9;
-  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton") 	particleIDNumber=100;
+  if(step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton") 		      		particleIDNumber=100;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="e-") 			      	particleIDNumber=2;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="e+") 		      		particleIDNumber=3;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="neutron")   		    	particleIDNumber=4;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="proton")    		   	particleIDNumber=5;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="mu+") 			      	particleIDNumber=6;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="mu-") 			      	particleIDNumber=7;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="alpha") 			      	particleIDNumber=8;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="Li7") 			      	particleIDNumber=9;
+  else if(step->GetTrack()->GetDefinition()->GetParticleName()=="gamma") 				particleIDNumber=1;
   else particleIDNumber=0;
   return (particleIDNumber);
 }

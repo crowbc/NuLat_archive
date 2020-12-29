@@ -1,3 +1,6 @@
+//RUN File
+//Not really used, should be removed with adjustments to other files
+
 //this file needs work
 //this is where to implNuLatent post event output
 #include "NuLatRun.hh"

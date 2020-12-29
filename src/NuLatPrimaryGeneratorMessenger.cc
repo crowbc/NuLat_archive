@@ -1,3 +1,6 @@
+//PRIMARY GENREATOR MESSENGER FILE
+//Not fully understood and may be obsolete at this point
+
 //  NuLatPrimaryGeneratorMessenger.cc 
  
 #include "NuLatPrimaryGeneratorMessenger.hh"

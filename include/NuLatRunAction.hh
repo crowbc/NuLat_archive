@@ -1,3 +1,5 @@
+//RUN ACTION HEADER FILE
+
 #ifndef RunAction_h
 #define RunAction_h 1
 
@@ -37,10 +39,14 @@ class NuLatRunAction : public G4UserRunAction
     std::vector<G4int> PMTZPEVector;
     
     std::vector<G4double> PhotonPMTHitWavelengthVector;
+    std::vector<G4double> PhotonPMTHitEnergyVector;    
     std::vector<G4int> PhotonPMTXHitVector;
     std::vector<G4int> PhotonPMTYHitVector;
     std::vector<G4int> PhotonPMTZHitVector;
     std::vector<G4double> PhotonPMTHitTimeVector;
+    std::vector<G4double> InitialMomentumXVector;
+    std::vector<G4double> InitialMomentumYVector;
+    std::vector<G4double> InitialMomentumZVector;      
 
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);

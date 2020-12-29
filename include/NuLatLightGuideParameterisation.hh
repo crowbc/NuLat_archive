@@ -1,4 +1,6 @@
-//
+//LIGHT GUIDE PARAMETERIZATION HEADER FILE
+
+
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *

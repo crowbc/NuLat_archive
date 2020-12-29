@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aida SYSTEM "http://aida.freehep.org/schemas/3.2.1/aida.dtd">
+<aida version="3.2.1">
+  <implementation package="tools" version="5.0.3"/>
+  <histogram1d path="/" name="InitialEnergy" title="InitialEnergy">
+    <annotation>
+      <item key="axis_x.title" value=""/>
+    </annotation>
+    <axis direction="x" numberOfBins="100" min="0" max="10000"/>
+    <statistics entries="1">
+      <statistic direction="x" mean="2000" rms="0"/>
+    </statistics>
+    <data1d>
+      <bin1d binNum="20" entries="1" height="1" error="1" weightedMean="2000"/>
+    </data1d>
+  </histogram1d>
+</aida>

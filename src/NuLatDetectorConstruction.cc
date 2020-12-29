@@ -1,3 +1,4 @@
+//DETECTOR CONSTRUCTION FILE
 //File for building the detector geometry
 //(highly related files: Materials.hh, DetectorConstruction.hh, VoxelParameterisation.cc/.hh, LightGuideParameterization.cc/.hh)
 

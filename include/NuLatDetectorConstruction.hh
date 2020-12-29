@@ -1,3 +1,5 @@
+//DETECTOR CONSTRUCTION HEADER FILE
+
 #ifndef NuLatDetectorConstruction_H
 #define NuLatDetectorConstruction_H 1
 

@@ -1,3 +1,5 @@
+//ACTION INITIALIZATION HEADER FILE
+
 #ifndef ActionInitialization_h
 #define ActionInitialization_h 1
 

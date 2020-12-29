@@ -1,3 +1,7 @@
+//PRIMARY PARTICLE GENERATOR FILE
+//Produces initial particle(s) to be input into detector
+//(Choose setup in Generate Primaries function and Edit specific values in Generate[            ] function
+
 #include "Randomize.hh"
 #include "G4ios.hh"
 #include "math.h"
@@ -38,6 +42,7 @@ NuLatPrimaryParticleGenerator::NuLatPrimaryParticleGenerator()
   fElectron = particleTable->FindParticle(particleName="e-");
   fGamma = particleTable->FindParticle(particleName="gamma");
   fNeutron = particleTable->FindParticle(particleName="neutron");
+  fOpticalphoton = particleTable->FindParticle(particleName="opticalphoton");  
 }
 
 //Destructor
@@ -47,14 +52,14 @@ NuLatPrimaryParticleGenerator::~NuLatPrimaryParticleGenerator()
   delete fParticleGun;
 }
 
-//Function Controlling what type of particle Generator we want to use for a run, option set in Macro 
+//Function Controlling what type of particle Generator we want to use for a run, option set by comment/uncomment
 void NuLatPrimaryParticleGenerator::GeneratePrimaries( G4Event* event )
 {
 
-  GenerateIBDEvent( event );
+  //GenerateIBDEvent( event );                    		//Inverse Beta Decay Run
+  GenerateTestParticle( event, fPositron );       		//Test Particle Run (edit specifics of particle in Function, choose partilce type here
+  //GeneratePhotonEvent(event);                   		//Photon Bomb Run
   
-// this function is called at the beginning of event
-  fParticleGun->GeneratePrimaryVertex(event);
 
 }
 
@@ -144,4 +149,89 @@ void NuLatPrimaryParticleGenerator::GenerateIBDEvent( G4Event* event )
 }
 
 
+
+
+void NuLatPrimaryParticleGenerator::GenerateTestParticle( G4Event* event, G4ParticleDefinition* particle )
+{
+  //Geometry of Detector
+  G4double Detector_length = 15.86865*2;//cm
+  G4double one_voxel_length = 6.3373;//cm
+  G4double gap_length = 0.0126;//cm
+
+    //Setting Energy
+    G4double Ekin=2*MeV;
+    
+    //Setting Position and Momentum
+    G4double posX = (15.86865*2*G4UniformRand()-15.86865)*cm,  posY = (15.86865*2*G4UniformRand()-15.86865)*cm,    posZ = (15.86865*2*G4UniformRand()-15.86865)*cm; //position
+    G4double phi = acos(1-G4UniformRand()*2);
+    G4double theta = 6.283185*G4UniformRand();
+
+    //Setting Particle creation time
+    G4double particleTime=0.0*ns;
+    
+    //Creating Primary Particle and Primary Vertex
+    G4PrimaryVertex* fvertex= new G4PrimaryVertex();
+    G4PrimaryParticle* pp = new G4PrimaryParticle();
+
+    //Setting Primary Paricle values (Partile_type, Momentum_direction, and Kinetic_energy)
+    pp->SetParticleDefinition(particle);
+    pp->SetMomentumDirection(G4ThreeVector(sin(phi)*cos(theta), sin(phi)*sin(theta), cos(phi)));
+    pp->SetKineticEnergy(Ekin);
+
+    //Setting Primary Vertex values (Primary_particle used, Position, Time)
+    fvertex->SetPrimary(pp);
+    fvertex->SetPosition(posX, posY, posZ);
+    fvertex->SetT0(0.0);
+    fvertex->SetT0(particleTime);
+
+    //Add primary vertex to event (Generates Particle into simulation)
+    event->AddPrimaryVertex(fvertex);
+}
+
+
+
+
+
+void NuLatPrimaryParticleGenerator::GeneratePhotonEvent( G4Event* event )
+{
+
+   G4PrimaryVertex* fvertex= new G4PrimaryVertex();
+   
+   //Setting Position and Time
+   fvertex->SetPosition(0*cm,0*cm,0*cm);
+   fvertex->SetT0(0.0);
+   
+   
+   
+               
+   //Creating 10,000 photons, with energy 4 eV and random momentum direction
+   for (G4int i=1; i<10000; i++)
+   {
+      G4PrimaryParticle* pp = new G4PrimaryParticle();
+      pp->SetKineticEnergy(4*eV);
+      //pp->SetMass(0);
+      pp->SetParticleDefinition(fOpticalphoton);     
+      G4double cosphi = 1-G4UniformRand()*2;
+      G4double phi = acos(cosphi);
+      G4double theta = 6.283185*G4UniformRand();
+      pp->SetMomentumDirection(G4ThreeVector(sin(phi)*cos(theta), sin(phi)*sin(theta), cos(phi)));  
+      
+      //pp->SetCharge(0);
+
+     
+      //pp->SetPolarization(G4ThreeVector(1.,1.,0.));
+      
+      
+      fvertex->SetPrimary(pp);
+ 
+      }
+
+      event->AddPrimaryVertex(fvertex);
+   
+   
+   }
+   
+   
+   
+   
 

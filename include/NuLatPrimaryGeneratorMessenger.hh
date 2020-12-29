@@ -1,3 +1,7 @@
+//PRIMARY GENERATOR HEADER FILE
+//Use mostly unknown
+
+
 //	NuLatPrimaryGeneratorMessenger.hh 
 
 #ifndef NuLatPrimaryGeneratorMessenger_h

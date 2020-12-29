@@ -1,4 +1,6 @@
-//
+//VOXEL PARAMETERISATION HEADER FILE
+//Used to build detector
+
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *

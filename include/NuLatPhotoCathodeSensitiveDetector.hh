@@ -1,4 +1,6 @@
-//
+//PMT Sensitive Detector Header
+
+
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *

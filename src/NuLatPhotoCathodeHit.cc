@@ -1,3 +1,6 @@
+//PHOTOCATHODE HIT FILE
+//Records data on hit (not fully understood)
+
 // needs work, this is were to record cell hits when we implement individual cells with optical tracking
 #include "NuLatPhotoCathodeHit.hh"
 
@@ -38,6 +41,7 @@ vector<G4int>     NuLatPhotoCathodeHit::PMTPE;
 vector<G4int>     NuLatPhotoCathodeHit::PMTXPE;
 vector<G4int>     NuLatPhotoCathodeHit::PMTYPE;
 vector<G4int>     NuLatPhotoCathodeHit::PMTZPE;
+vector<G4double>  NuLatPhotoCathodeHit::PhotonPMTHitEnergy;
 vector<G4double>  NuLatPhotoCathodeHit::PhotonPMTHitWavelength;
 vector<G4int>     NuLatPhotoCathodeHit::PhotonPMTXHit;
 vector<G4int>     NuLatPhotoCathodeHit::PhotonPMTYHit;

@@ -1,4 +1,5 @@
-//
+//VOXEL SENSITIVE DETECTOR HEADER FILE
+
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
