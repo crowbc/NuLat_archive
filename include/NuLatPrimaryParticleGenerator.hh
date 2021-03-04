@@ -24,6 +24,7 @@ class NuLatPrimaryParticleGenerator : public G4VUserPrimaryGeneratorAction
     ~NuLatPrimaryParticleGenerator();
     void GeneratePrimaries( G4Event* );
     void SetEventTypeFlag(G4String val) {EventTypeFlag = val;};
+    void SetPrimaryEventVoxel(G4ThreeVector val) {PrimaryEventVoxel = val;};
 
 	private:
 
@@ -33,7 +34,7 @@ class NuLatPrimaryParticleGenerator : public G4VUserPrimaryGeneratorAction
 		G4double GetRndSpecialNuclearMaterialNeutronFissionEnergy();
 		void GenerateTestParticle( G4Event* event, G4ParticleDefinition* particleToRun );
 		void GenerateIBDEvent( G4Event* event );
-		void GeneratePhotonEvent( G4Event* event );
+		void GeneratePhotonEvent( G4Event* event, G4int Xpos, G4int Ypos, G4int Zpos );
 
 		G4ParticleGun* fParticleGun;
 
@@ -50,6 +51,7 @@ class NuLatPrimaryParticleGenerator : public G4VUserPrimaryGeneratorAction
 		
 		
 		G4String EventTypeFlag;
+		G4ThreeVector PrimaryEventVoxel;
 		
 		NuLatPrimaryGeneratorMessenger* NuLatGenerator;
 

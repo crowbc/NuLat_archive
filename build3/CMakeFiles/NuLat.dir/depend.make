@@ -1619,6 +1619,7 @@ CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4String.icc
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4ThreeVector.hh
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4Types.hh
+CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4UIcmdWith3Vector.hh
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4UIcmdWithADouble.hh
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4UIcmdWithAString.hh
 CMakeFiles/NuLat.dir/src/NuLatPrimaryGeneratorMessenger.cc.o: /opt/applications/geant4/geant4.10.06.p02-install/include/Geant4/G4UIcmdWithoutParameter.hh

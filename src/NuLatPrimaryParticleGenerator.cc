@@ -27,6 +27,7 @@ using namespace std;
 NuLatPrimaryParticleGenerator::NuLatPrimaryParticleGenerator()
 {
   G4int n_particle = 1;                                                              //Standard, generating 1 particle event
+  NuLatGenerator = new NuLatPrimaryGeneratorMessenger(this);
 
   fParticleGun  = new G4ParticleGun(n_particle);                                     //Using Geant defined particle gun as our generator (as opposed to GeneralParticleSource)
 
@@ -56,9 +57,13 @@ NuLatPrimaryParticleGenerator::~NuLatPrimaryParticleGenerator()
 void NuLatPrimaryParticleGenerator::GeneratePrimaries( G4Event* event )
 {
 
-  //GenerateIBDEvent( event );                    		//Inverse Beta Decay Run
-  GenerateTestParticle( event, fPositron );       		//Test Particle Run (edit specifics of particle in Function, choose partilce type here
-  //GeneratePhotonEvent(event);                   		//Photon Bomb Run
+  G4int initialXVoxel = PrimaryEventVoxel.getX();				//Getting the 3 values from PrimaryEventVoxel ThreeVector
+  G4int initialYVoxel = PrimaryEventVoxel.getY();				//PrimaryEventVoxel values set in messenger file with a Macro
+  G4int initialZVoxel = PrimaryEventVoxel.getZ();
+
+  //GenerateIBDEvent( event );                    				//Inverse Beta Decay Run
+  //GenerateTestParticle( event, fNeutron );       				//Test Particle Run (edit specifics of particle in Function, choose partilce type here)
+  GeneratePhotonEvent(event, initialXVoxel, initialYVoxel, initialZVoxel);	//Photon Bomb Run (inputs are X_voxel, Y_voxel, and Z_voxel of primary particle (random within voxel))
   
 
 }
@@ -159,7 +164,7 @@ void NuLatPrimaryParticleGenerator::GenerateTestParticle( G4Event* event, G4Part
   G4double gap_length = 0.0126;//cm
 
     //Setting Energy
-    G4double Ekin=2*MeV;
+    G4double Ekin=1*MeV;
     
     //Setting Position and Momentum
     G4double posX = (15.86865*2*G4UniformRand()-15.86865)*cm,  posY = (15.86865*2*G4UniformRand()-15.86865)*cm,    posZ = (15.86865*2*G4UniformRand()-15.86865)*cm; //position
@@ -175,12 +180,12 @@ void NuLatPrimaryParticleGenerator::GenerateTestParticle( G4Event* event, G4Part
 
     //Setting Primary Paricle values (Partile_type, Momentum_direction, and Kinetic_energy)
     pp->SetParticleDefinition(particle);
-    pp->SetMomentumDirection(G4ThreeVector(sin(phi)*cos(theta), sin(phi)*sin(theta), cos(phi)));
+    pp->SetMomentumDirection(G4ThreeVector(1,0,0));
     pp->SetKineticEnergy(Ekin);
 
     //Setting Primary Vertex values (Primary_particle used, Position, Time)
     fvertex->SetPrimary(pp);
-    fvertex->SetPosition(posX, posY, posZ);
+    fvertex->SetPosition(0, 0, 0);
     fvertex->SetT0(0.0);
     fvertex->SetT0(particleTime);
 
@@ -192,19 +197,26 @@ void NuLatPrimaryParticleGenerator::GenerateTestParticle( G4Event* event, G4Part
 
 
 
-void NuLatPrimaryParticleGenerator::GeneratePhotonEvent( G4Event* event )
+void NuLatPrimaryParticleGenerator::GeneratePhotonEvent( G4Event* event, G4int Xpos, G4int Ypos, G4int Zpos)
 {
-
+   
+   
+   
+   //100 photon bombs at random position within voxel
+   for (G4int j=1; j<1000; j++)
+   {
    G4PrimaryVertex* fvertex= new G4PrimaryVertex();
    
    //Setting Position and Time
-   fvertex->SetPosition(0*cm,0*cm,0*cm);
+   fvertex->SetPosition((2*3.16865*G4UniformRand()-3.16865 + (Xpos-3)*6.3499)*cm,
+                        (2*3.16865*G4UniformRand()-3.16865 + (Ypos-3)*6.3499)*cm,
+                        (2*3.16865*G4UniformRand()-3.16865 + (Zpos-3)*6.3499)*cm);
    fvertex->SetT0(0.0);
    
    
    
                
-   //Creating 10,000 photons, with energy 4 eV and random momentum direction
+   //Creating 10,000 photons, with energy 4 eV and random momentum direction (photon bomb)
    for (G4int i=1; i<10000; i++)
    {
       G4PrimaryParticle* pp = new G4PrimaryParticle();
@@ -229,9 +241,6 @@ void NuLatPrimaryParticleGenerator::GeneratePhotonEvent( G4Event* event )
       event->AddPrimaryVertex(fvertex);
    
    
-   }
-   
-   
-   
+   }}
    
 

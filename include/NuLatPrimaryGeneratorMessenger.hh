@@ -15,11 +15,13 @@ class G4UIdirectory;
 class G4UIcmdWithoutParameter;
 class G4UIcmdWithAString;
 class G4UIcmdWithADouble;
+class G4UIcmdWith3Vector;
+class G4UIcommand;
 
 class NuLatPrimaryGeneratorMessenger: public G4UImessenger{
 	public:
 
-		NuLatPrimaryGeneratorMessenger(NuLatPrimaryParticleGenerator*);
+		NuLatPrimaryGeneratorMessenger(NuLatPrimaryParticleGenerator* NuLatGun);
 		~NuLatPrimaryGeneratorMessenger();
     
 	void SetNewValue(G4UIcommand*, G4String);
@@ -33,6 +35,9 @@ class NuLatPrimaryGeneratorMessenger: public G4UImessenger{
 		G4UIcmdWithAString*				InputCmd;
 		G4UIcmdWithoutParameter*		UpdateCmd;
 		std::string*					MessInput;
+		
+		G4UIdirectory*					mydetDir; 
+		G4UIcmdWith3Vector*				InitialVoxelCMD;
 	
 };
 

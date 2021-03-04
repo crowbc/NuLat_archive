@@ -118,8 +118,8 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
 //  if (step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton" &&
 //      step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "OpAbsorption")
 //      {
-  if (step->GetTrack()->GetDefinition()->GetParticleName()!="opticalphoton"  )
-  {
+  //if (step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton"  )
+//  {
     hit->AddEdep(edep);  
   // push onto the appropriate vectors the
   // values associated with the energy deposit (EDep)
@@ -132,7 +132,7 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
   hit->PushInitialMomentumX(step->GetTrack()->GetVertexMomentumDirection().theta());
   hit->PushInitialMomentumY(step->GetTrack()->GetVertexMomentumDirection().phi());
   hit->PushInitialMomentumZ(step->GetTrack()->GetVertexMomentumDirection().z());  
-}
+//}
   return true;
 
 }

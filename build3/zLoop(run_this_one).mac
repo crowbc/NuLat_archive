@@ -1,0 +1,8 @@
+# Macro file for generating reconstruction data
+/tracking/verbose 1
+/run/verbose 1
+#/run/numberOfThreads 1
+/run/initialize
+
+
+/control/foreach xLoop.mac zpos "1 2 3 4 5"

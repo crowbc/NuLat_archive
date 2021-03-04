@@ -27,5 +27,8 @@
 /vis/viewer/refresh
 /vis/verbose warnings
 /vis/scene/endOfEventAction accumulate
+/NuLat/gun/initialVoxel 1 1 1
 /run/beamOn 1
 /vis/scene/notifyHandlers scene-0
+/NuLat/gun/initialVoxel 3 3 3
+/run/beamOn 1
