@@ -3,42 +3,34 @@
 /*******************************************/
 #include <time.h>
 #include <string.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
-
 #include <iostream>
 #include <fstream>
-
 /*******************************************/
 /*      Geant4 defined header files        */
 /*******************************************/
 #include "Randomize.hh"
-
-#ifdef G4MULTITHREADED // Set RunManager according to Multithread status
+#include "G4UImanager.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIExecutive.hh"
+#include "G4ios.hh"
+// Set RunManager according to Multithread status
+#ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else
 #include "G4RunManager.hh"
 #endif
-
-#include "G4UImanager.hh"
-#include "G4ios.hh"
-
 //Physics Lists
 #include "G4HadronicProcessStore.hh"
 #include "QGSP_BERT_HP.hh"
 #include "G4StepLimiterPhysics.hh"
 #include "G4OpticalPhysics.hh"
-
-#include "G4VisExecutive.hh"
-#include "G4UIExecutive.hh"
-
-
-
-
+#include "G4DecayPhysics.hh"
+#include "G4RadioactiveDecayPhysics.hh"
 /*******************************************/
 /*      User/NuLat simulation developer    */
 /*          defined header files           */
@@ -47,11 +39,9 @@
 #include "NuLatActionInitialization.hh"
 
 using namespace std;
-
-
 /*******************************************/
 /*    int main( int argc, char** argv )    */
-/*    This is where the simulation begins.  The random number generator is initialized                 */
+/*    This is where the simulation begins. */
 /*******************************************/
 int main( int argc, char** argv )
 {
@@ -79,12 +69,15 @@ int main( int argc, char** argv )
   G4double voxelSpacingYDimension = 0.005*2.54*cm;;
   G4double voxelSpacingZDimension = 0.005*2.54*cm;;
 
- 
-
+/**********************************************/
+/* The random number generator is initialized */
+/**********************************************/
 G4int myseed = 0;//time( NULL );
 G4Random::setTheEngine(new CLHEP::RanluxEngine);
 G4Random::setTheSeed(myseed);
 
+G4String cmd = "/control/execute ";
+G4String mac = "Macros/init_vis.mac";
 
   /****************************************************/
   /*                                                  */
@@ -133,6 +126,8 @@ G4Random::setTheSeed(myseed);
   physicsList->SetVerboseLevel(0);
   G4HadronicProcessStore::Instance()->SetVerbose(0);
   physicsList->RegisterPhysics(new G4OpticalPhysics(0));
+  physicsList->RegisterPhysics(new G4DecayPhysics(0));
+  physicsList->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
   runManager->SetUserInitialization(physicsList);
   
 
@@ -166,8 +161,8 @@ G4Random::setTheSeed(myseed);
     /* Run in batch mode by having the user interface manager  */
     /* executing the macro file passed via the command line    */
     /***********************************************************/
-
-    UImanager->ApplyCommand((G4String)"/control/execute "+(G4String)argv[1]);
+	mac=(G4String)argv[1];
+    UImanager->ApplyCommand(cmd+mac);
   }
   else         // interactive mode : define UI session
   {
@@ -175,7 +170,7 @@ G4Random::setTheSeed(myseed);
 
 
 
-    UImanager->ApplyCommand("/control/execute Macros/init_vis.mac");
+    UImanager->ApplyCommand(cmd+mac);
     ui->SessionStart();
     delete ui;
   }

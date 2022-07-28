@@ -1,5 +1,4 @@
 /run/verbose 2
-/run/initialize
 /control/execute Macros/vis.mac
 /control/verbose 2
 /vis/open OGL 600x600-0+0
@@ -8,11 +7,12 @@
 /vis/viewer/refresh
 /vis/viewer/set/autoRefresh false
 /vis/verbose errors
+/run/initialize
 /vis/drawVolume
 /vis/scene/create
 /vis/scene/add/volume world -1 -1 none m 0 0 0 0 0 0
 /vis/sceneHandler/attach
-/vis/viewer/set/viewpointThetaPhi 120. 45.
+/vis/viewer/set/viewpointThetaPhi 90. 90.
 /vis/scene/add/axes 0 0 0 1 m
 /vis/scene/notifyHandlers
 /vis/scene/add/trajectories smooth
@@ -27,8 +27,7 @@
 /vis/viewer/refresh
 /vis/verbose warnings
 /vis/scene/endOfEventAction accumulate
-/NuLat/gun/initialVoxel 1 1 1
 /run/beamOn 1
 /vis/scene/notifyHandlers scene-0
-/NuLat/gun/initialVoxel 3 3 3
-/run/beamOn 1
+/analysis/h1/getVector
+/analysis/h2/getVector

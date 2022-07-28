@@ -37,6 +37,11 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
+//New Materail Properties (added 2/7/22)
+#include "G4LogicalBorderSurface.hh"
+#include "G4LogicalSkinSurface.hh"
+#include "G4OpticalSurface.hh"
+
 
 
 using namespace std;                                            //Using standard C++ namespace so things like endl and cout are understood
@@ -171,10 +176,24 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
 
 //NuLat Light Guides
 
+////Defining LightGuideAndPMT logical volume (assuming based on lightguideparamaterization file)
+//    LightGuideAndPMTLog = LightGuideAndPMT((voxelXDimension+voxelSpacingXDimension-0.127*cm), 4.6*cm,
+//                                           (voxelYDimension+voxelSpacingYDimension-0.127*cm), 4.6*cm,
+//                                            LightGuideTaperLength,
+//                                            true);
+//    LightGuideAndPMTLog_noPMTs = LightGuideAndPMT((voxelXDimension+voxelSpacingXDimension-0.127*cm), 4.6*cm,
+//                                           (voxelYDimension+voxelSpacingYDimension-0.127*cm), 4.6*cm,
+//                                            LightGuideTaperLength,
+//                                            false);
 //Defining LightGuideAndPMT logical volume (assuming based on lightguideparamaterization file)
-    LightGuideAndPMTLog = LightGuideAndPMT((voxelXDimension+voxelSpacingXDimension-0.127*cm), 4.6*cm,
+    LightGuideAndPMTLog = LightGuideAndPMT((voxelXDimension+voxelSpacingXDimension-0.127*cm), 4.6*cm,			//EDIT TO add metal dividers
                                            (voxelYDimension+voxelSpacingYDimension-0.127*cm), 4.6*cm,
-                                            LightGuideTaperLength);
+                                            LightGuideTaperLength,
+                                            true);
+    LightGuideAndPMTLog_noPMTs = LightGuideAndPMT((voxelXDimension+voxelSpacingXDimension-0.127*cm), 4.6*cm,
+                                           (voxelYDimension+voxelSpacingYDimension-0.127*cm), 4.6*cm,
+                                            LightGuideTaperLength,
+                                            false);
     
 //NuLat LightGuide z+ Bank (Zone on the Z+ side of Cube)
 //Creating Lightguide Bank Shape
@@ -196,10 +215,15 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       false,0,checkOverlaps);
 
 //Placing LightGuide and PMT setup into Z+ Bank
+//    G4VPVParameterisation* lightGuideParamZBankPlus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 0, 1);
+//      
     G4VPVParameterisation* lightGuideParamZBankPlus =
-      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 0, 1);
+      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,					//EDIT TO add metal dividers
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, 0, 0, 1);
       
     new G4PVParameterised("LightGuidePhysicalZPlus",LightGuideAndPMTLog,NuLatLightGuideZBankPlusLogical,
                           kZAxis,nOfVoxelsInX*nOfVoxelsInY,lightGuideParamZBankPlus);
@@ -223,12 +247,17 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       false,0,checkOverlaps);
 
 
-  G4VPVParameterisation* lightGuideParamZBankMinus =
+
+//  G4VPVParameterisation* lightGuideParamZBankMinus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 0, -1);
+  G4VPVParameterisation* lightGuideParamZBankMinus =									//EDIT TO add metal dividers
       new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 0, -1);
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, 0, 0, -1);
       
-    new G4PVParameterised("LightGuidePhysicalZMinus",LightGuideAndPMTLog,NuLatLightGuideZBankMinusLogical,
+    new G4PVParameterised("LightGuidePhysicalZMinus",LightGuideAndPMTLog_noPMTs,NuLatLightGuideZBankMinusLogical,
                           kZAxis,nOfVoxelsInX*nOfVoxelsInY,lightGuideParamZBankMinus);
                           
                           
@@ -253,13 +282,19 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       "NuLatLightGuideYBankPlusPhysical",logicWorld,
                       false,0,checkOverlaps);
 
+// EDIT FOR HALF INSTRUMENTED
 
+//  G4VPVParameterisation* lightGuideParamYBankPlus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 1, 0);
+//      
   G4VPVParameterisation* lightGuideParamYBankPlus =
       new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, 1, 0);
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, 0, 1, 0);
       
-    new G4PVParameterised("LightGuidePhysicalZPlus",LightGuideAndPMTLog,NuLatLightGuideYBankPlusLogical,
+    new G4PVParameterised("LightGuidePhysicalZPlus",LightGuideAndPMTLog_noPMTs,NuLatLightGuideYBankPlusLogical,
                           kZAxis,nOfVoxelsInX*nOfVoxelsInZ,lightGuideParamYBankPlus);
 
 
@@ -280,10 +315,15 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       false,0,checkOverlaps);
 
 
+//  G4VPVParameterisation* lightGuideParamYBankMinus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, -1, 0);
+//      
   G4VPVParameterisation* lightGuideParamYBankMinus =
       new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 0, -1, 0);
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, 0, -1, 0);
       
     new G4PVParameterised("LightGuidePhysicalZMinus",LightGuideAndPMTLog,NuLatLightGuideYBankMinusLogical,
                           kZAxis,nOfVoxelsInX*nOfVoxelsInZ,lightGuideParamYBankMinus);
@@ -315,12 +355,19 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       false,0,checkOverlaps);
 
 
+// EDIT FOR HALF INSTRUMENTED
+
+//  G4VPVParameterisation* lightGuideParamXBankPlus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 1, 0, 0);
+//      
   G4VPVParameterisation* lightGuideParamXBankPlus =
       new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, 1, 0, 0);
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, 1, 0, 0);
       
-    new G4PVParameterised("LightGuidePhysicalZPlus",LightGuideAndPMTLog,NuLatLightGuideXBankPlusLogical,
+    new G4PVParameterised("LightGuidePhysicalZPlus",LightGuideAndPMTLog_noPMTs,NuLatLightGuideXBankPlusLogical,
                           kZAxis,nOfVoxelsInZ*nOfVoxelsInY,lightGuideParamXBankPlus);
 
 
@@ -341,10 +388,15 @@ G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
                       false,0,checkOverlaps);
 
 
+//  G4VPVParameterisation* lightGuideParamXBankMinus =
+//      new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
+//        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
+//        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, -1, 0, 0);
+//      
   G4VPVParameterisation* lightGuideParamXBankMinus =
       new NuLatLightGuideParameterisation(nOfVoxelsInX, nOfVoxelsInY, nOfVoxelsInZ,
-        voxelXDimension/2, voxelYDimension/2, voxelZDimension/2,
-        voxelSpacingXDimension/2, voxelSpacingYDimension/2, voxelSpacingZDimension/2, -1, 0, 0);
+        voxelXDimension/2+voxelSpacingXDimension/2, voxelYDimension/2+voxelSpacingYDimension/2, voxelZDimension/2+voxelSpacingZDimension/2,
+        0/2, 0/2, 0/2, -1, 0, 0);
       
     new G4PVParameterised("LightGuidePhysicalZMinus",LightGuideAndPMTLog,NuLatLightGuideXBankMinusLogical,
                           kZAxis,nOfVoxelsInZ*nOfVoxelsInY,lightGuideParamXBankMinus);
@@ -527,8 +579,23 @@ G4LogicalVolume* NuLatDetectorConstruction::HamamatsuR10533()
 
 
 //Creating Lightguide
-G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4double dx2, G4double dy1, G4double dy2, G4double dz)
+G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4double dx2, G4double dy1, G4double dy2, G4double dz, G4bool instrumented)
 {
+//Defining Box that lightguide will be constructed in
+    G4VSolid* lightGuideBox 
+      = new G4Box("lightGuideBox",
+                  dx1/2+0.0635*cm, 		//Edit to add in metal dividers. Increasing size of box and adding divier, removing spacing between PMTs
+                  dy1/2+0.0635*cm, 
+                  (dz+0.5*cm+19.863*cm)/2);
+
+//Creating Lightguide Logical to build within, giving it material: air
+    G4LogicalVolume* lightGuide
+      = new G4LogicalVolume(lightGuideBox,
+                            NuLatMaterials->air,
+                            "lightGuide");
+
+
+if (instrumented == true) {
 
 //Defining Light Guide Trapezoid
   G4VSolid* lightGuideTrd = new G4Trd("LightGuideTrd",     //its name
@@ -565,18 +632,10 @@ G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4dou
                                                                                     lightGuideTrd,             //solid 1 to interesect
                                                                                     lightGuideCone);           //solid 2 to intersect
 
-//Defining Box that lightguide will be constructed in
-    G4VSolid* lightGuideBox 
-      = new G4Box("lightGuideBox",
-                  dx1/2, 
-                  dy1/2, 
-                  (dz+0.5*cm+19.863*cm)/2);
 
-//Creating Lightguide Logical to build within, giving it material: air
-    G4LogicalVolume* lightGuide
-      = new G4LogicalVolume(lightGuideBox,
-                            NuLatMaterials->air,
-                            "lightGuide");
+
+
+
                             
 //Creating Logical Volume for LightGuide cone/trapezoid intersection, giving it material acrylic                            
     lightGuideTrdIntersLightGuideConeLog
@@ -599,12 +658,89 @@ G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4dou
                       "guide002",lightGuide,
                       false,0,checkOverlaps);
 
+
+             
+    
+
 //Placing Full PMT Structure into lightguide box
    PMTLog = HamamatsuR10533();
    new G4PVPlacement(0,G4ThreeVector(0.,0.,(dz+0.5*cm)/2),PMTLog,
                       "PMT",lightGuide,
                       false,0,checkOverlaps);
+}
 
+
+
+     G4VSolid* dividers_outer
+      = new G4Box("dividers_outer",
+                  dx1/2 + 0.0635*cm, 	
+                  dy1/2 + 0.0635*cm, 
+                  (6.5*2.54*cm)/2);
+      G4VSolid* dividers_inner
+      = new G4Box("dividers_inner",
+                  dx1/2 , 
+                  dy1/2 , 
+                  (6.5*2.54*cm)/2);      
+
+  	G4SubtractionSolid* dividers_solid = new G4SubtractionSolid("dividers_solid",          //its name (name of solid after subtraction)
+                                                             dividers_outer,           //starting solid
+                                                             dividers_inner,   //solid to be subtracted out
+                                                             0,                        //rotations (zero in this case)
+                                                             G4ThreeVector(0, 0, 0));  //translation before subtraction              
+ 	dividers_Log = new G4LogicalVolume(dividers_solid,
+                                              NuLatMaterials->Aluminium,
+                                              "dividers_Log");
+    	new G4PVPlacement(0,G4ThreeVector(0.,0.,-(dz+0.5*cm+19.863*cm)/2+(6.5*2.54*cm)/2),dividers_Log,
+                      "dividers",lightGuide,
+                      false,0,true);
+
+
+        const G4int numEntries = 182;
+        G4double photonEnergy[numEntries] = {
+          2.034*eV, 2.068*eV, 2.103*eV, 2.139*eV, 2.177*eV, 2.216*eV, 2.256*eV, 2.298*eV, 2.341*eV, 2.386*eV, //10
+          2.433*eV, 2.481*eV, 2.487*eV, 2.496*eV, 2.506*eV, 2.516*eV, 2.524*eV, 2.531*eV, 2.539*eV, 2.547*eV, //20
+          2.554*eV, 2.561*eV, 2.569*eV, 2.577*eV, 2.586*eV, 2.595*eV, 2.605*eV, 2.614*eV, 2.622*eV, 2.630*eV, //30
+          2.638*eV, 2.646*eV, 2.653*eV, 2.660*eV, 2.669*eV, 2.676*eV, 2.681*eV, 2.688*eV, 2.693*eV, 2.698*eV, //40
+          2.703*eV, 2.706*eV, 2.711*eV, 2.718*eV, 2.723*eV, 2.731*eV, 2.742*eV, 2.755*eV, 2.768*eV, 2.782*eV, //50
+          2.793*eV, 2.803*eV, 2.811*eV, 2.819*eV, 2.829*eV, 2.837*eV, 2.845*eV, 2.853*eV, 2.860*eV, 2.867*eV, //60
+          2.875*eV, 2.882*eV, 2.888*eV, 2.894*eV, 2.900*eV, 2.907*eV, 2.913*eV, 2.919*eV, 2.924*eV, 2.930*eV, //70
+          2.937*eV, 2.942*eV, 2.948*eV, 2.954*eV, 2.960*eV, 2.968*eV, 2.976*eV, 2.983*eV, 2.991*eV, 3.001*eV, //80
+          3.008*eV, 3.017*eV, 3.028*eV, 3.038*eV, 3.048*eV, 3.055*eV, 3.070*eV, 3.087*eV, 3.103*eV, 3.121*eV, //90
+          3.138*eV, 3.155*eV, 3.173*eV, 3.191*eV, 3.220*eV, 3.250*eV, 3.281*eV, 3.313*eV, 3.344*eV, 3.375*eV, //100
+          3.403*eV, 3.439*eV, 3.479*eV, 3.522*eV, 3.566*eV, 3.611*eV, 3.644*eV, 3.684*eV, 3.731*eV, 3.780*eV, //110
+          3.831*eV, 3.868*eV, 3.892*eV, 3.910*eV, 3.921*eV, 3.934*eV, 3.946*eV, 3.957*eV, 3.970*eV, 3.994*eV, //120
+          4.044*eV, 4.102*eV, 4.160*eV, 4.202*eV, 4.236*eV, 4.267*eV, 4.298*eV, 4.328*eV, 4.357*eV, 4.387*eV, //130
+          4.422*eV, 4.455*eV, 4.494*eV, 4.563*eV, 4.607*eV, 4.616*eV, 4.624*eV, 4.627*eV, 4.628*eV, 4.633*eV, //140
+          4.640*eV, 4.642*eV, 4.649*eV, 4.656*eV, 4.661*eV, 4.666*eV, 4.678*eV, 4.685*eV, 4.692*eV, 4.699*eV, //150
+          4.706*eV, 4.713*eV, 4.720*eV, 4.727*eV, 4.740*eV, 4.751*eV, 4.763*eV, 4.775*eV, 4.788*eV, 4.798*eV, //160
+          4.813*eV, 4.828*eV, 4.840*eV, 4.853*eV, 4.869*eV, 4.886*eV, 4.905*eV, 4.928*eV, 4.953*eV, 5.015*eV, //170
+          5.099*eV, 5.143*eV, 5.174*eV, 5.202*eV, 5.235*eV, 5.265*eV, 5.294*eV, 5.330*eV, 5.413*eV, 5.493*eV, //180
+          5.556*eV, 5.611*eV}; //182
+
+                  
+	G4double reflectivityAlMetal[numEntries];
+	G4double efficiencyAlMetal[numEntries];	
+          for(int i=0; i<numEntries; i++){
+          reflectivityAlMetal[i] = 0.95;
+          efficiencyAlMetal[i] = 1.;
+
+       
+
+          }                  
+        
+        G4OpticalSurface* OpSurface = new G4OpticalSurface("Al_surface");
+	G4LogicalSkinSurface* Al_surface = new G4LogicalSkinSurface("Al_surface",dividers_Log,OpSurface);
+	OpSurface -> SetType(dielectric_metal);
+	OpSurface -> SetFinish(ground);
+	OpSurface -> SetModel(glisur);
+	G4double polish = 0.8;
+	G4MaterialPropertiesTable *OpSurfaceProperty = new G4MaterialPropertiesTable();
+	OpSurfaceProperty -> AddProperty("REFLECTIVITY", photonEnergy, reflectivityAlMetal, numEntries);
+	OpSurfaceProperty -> AddProperty("EFFICIENCY",photonEnergy,efficiencyAlMetal,numEntries);
+	OpSurface -> SetMaterialPropertiesTable(OpSurfaceProperty);     
+	
+
+   
 
 //Visualization Attributes
 
@@ -613,13 +749,24 @@ G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4dou
     lightGuide->SetVisAttributes(visAttributes);
     NuLatVisAttributes.push_back(visAttributes);
 
+if (instrumented == true) {
 //Making Acrylic Light Guide parts Yellow and partly transparent
   visAttributes = new G4VisAttributes(G4Colour(255,0,255,.3));
     lightGuideTrdIntersLightGuideConeLog->SetVisAttributes(visAttributes);
 
     lightGuideSquareLog->SetVisAttributes(visAttributes);
     NuLatVisAttributes.push_back(visAttributes);
+}
 
+   visAttributes = new G4VisAttributes(G4Colour(255,0,0,.3));
+  visAttributes->SetForceWireframe(true);
+//  visAttributes->SetForceSolid(true);
+  dividers_Log->SetVisAttributes(visAttributes);
+  NuLatVisAttributes.push_back(visAttributes);                 
+                      
+                      
+                      
+                      
     return(lightGuide);
 }
 

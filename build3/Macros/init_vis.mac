@@ -7,6 +7,5 @@
 /control/saveHistory
 /run/verbose 2
 #
-/run/initialize
 # Visualization setting
 /control/execute Macros/vis.mac

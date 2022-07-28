@@ -1,9 +1,11 @@
 
+
 /NuLat/gun/initialVoxel {xpos} {ypos} {zpos}
 
-/run/beamOn 1
 
-
+/run/beamOn 100
 
 /control/shell mv NuLatOutput_nt_PMThits.csv output_{xpos}_{ypos}_{zpos}.csv
+
+
 

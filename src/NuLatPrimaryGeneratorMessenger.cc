@@ -39,7 +39,8 @@
 	InitialVoxelCMD->SetGuidance("Controls wich voxel primary particles spawn from");
 	InitialVoxelCMD->SetGuidance("Input three intergers for X, Y, and Z");
 	InitialVoxelCMD->SetParameterName("X","Y","Z",true,false);
-	InitialVoxelCMD->SetRange("0 < X < 6 || 0 < Y < 6 || 0 < Z < 6");
+//	InitialVoxelCMD->SetRange("0 < X < 6 || 0 < Y < 6 || 0 < Z < 6");
+	InitialVoxelCMD->SetRange("-40 < X < 40 || -40 < Y < 40 || -40 < Z < 40");
 	InitialVoxelCMD->SetDefaultValue(G4ThreeVector (3, 3, 3));
 	
 	

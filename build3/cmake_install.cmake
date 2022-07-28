@@ -1,4 +1,4 @@
-# Install script for directory: /home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat
+# Install script for directory: /home/jack/Documents/geant4/NuLat
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,12 +44,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/NuLat"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/NuLat")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/jack/Documents/geant4/NuLat/build3/NuLat")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/NuLat" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/NuLat")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/NuLat"
-         OLD_RPATH "/opt/applications/geant4/geant4.10.06.p02-install/lib:"
+         OLD_RPATH "/opt/applications/geant4/geant4-v11.0.2-installMT/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/NuLat")
@@ -83,5 +83,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/jack/Documents/geant4/NuLat/build3/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

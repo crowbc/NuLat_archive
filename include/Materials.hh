@@ -33,6 +33,7 @@ class Materials
     G4Element* elIn;
     G4Element* elPb;
     G4Element* elenriched6Li;
+    G4Element* elAl;
 
     G4Isotope* isoLi6;
 
@@ -55,6 +56,7 @@ class Materials
     G4Material* muMetal;
     G4Material* vacuum;
     G4Material* BeCuPhotoCathode;
+    G4Material* Aluminium;
     
 
 
@@ -110,6 +112,7 @@ class Materials
       G4double a_elMo    =  95.95    * g/mole;
       G4double a_elIn    = 114.82    * g/mole;
       G4double a_elPb    = 207.19    * g/mole;
+      G4double a_elAl    = 26.98     * g/mole;
 
       G4double z;  // atomic number
 
@@ -165,6 +168,9 @@ class Materials
 
       elenriched6Li = new G4Element("enriched Li6", "Li6", 1);
       elenriched6Li->AddIsotope(isoLi6, 100*perCent);
+      
+      z = 13.0;
+      elAl = new G4Element("Aluminium", "Al", z, a_elAl);
 
 
       //&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -273,6 +279,30 @@ class Materials
       borosilicateGlassMat->AddProperty("RINDEX", photonEnergy, refractiveIndexBorosilicateGlass, numEntries);
       borosilicateGlassMat->AddProperty("ABSLENGTH", photonEnergy, absorptionBorosilicateGlass, numEntries);
       borosilicateGlass->SetMaterialPropertiesTable( borosilicateGlassMat );
+      
+      
+      //Alluminium Material Properties
+      Aluminium = new G4Material("Aluminium", 2.7*g/cm3, 1);
+      Aluminium->AddElement( elAl, 1);
+      
+          G4double reflectivityAlMetal[numEntries];
+          G4double refractiveIndexAl[numEntries];
+          G4double absorptionAlMetal[numEntries];
+          G4double imgrefractiveIndexAl[numEntries];          
+          for(int i=0; i<numEntries; i++){
+          reflectivityAlMetal[i] = 0.95;
+          absorptionAlMetal[i] = 0.1*m;
+          refractiveIndexAl[i] = 1.5;
+          imgrefractiveIndexAl[i] = 4.836;          
+
+          }
+          
+	  G4MaterialPropertiesTable *Al_SurfaceMPT = new G4MaterialPropertiesTable();
+//          Al_SurfaceMPT->AddProperty("REFLECTIVITY", photonEnergy, reflectivityAlMetal, numEntries);   //overall
+          Al_SurfaceMPT->AddProperty("ABSLENGTH", photonEnergy, absorptionAlMetal, numEntries );
+//          Al_SurfaceMPT->AddProperty("RINDEX", photonEnergy, refractiveIndexAl, numEntries );
+//          Al_SurfaceMPT->AddProperty("IMAGINARYRINDEX", photonEnergy, imgrefractiveIndexAl, numEntries );          
+          Aluminium->SetMaterialPropertiesTable(Al_SurfaceMPT);
 
 
       //&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -346,12 +376,14 @@ class Materials
       
       G4double refractiveIndexPlastic[numEntries];
       G4double absorptionPlastic[numEntries];
+      G4double rayleigh_scattering[numEntries];
   
       for(int i=0; i<numEntries; i++)  {
       //refractive index assumes PVT, absorption is something to be tuned
       G4double wavelength = (1240./photonEnergy[i])*nm;
       refractiveIndexPlastic[i] = 1.58;
       absorptionPlastic[i]=90.*cm;
+      rayleigh_scattering[i] =90.0*cm;
       }
   
       //  Fast scintillation properties, no reference and were here with the original file
@@ -380,12 +412,14 @@ class Materials
       G4MaterialPropertiesTable *PVT_MPT = new G4MaterialPropertiesTable();      
       PVT_MPT->AddProperty("RINDEX", photonEnergy, refractiveIndexPlastic, numEntries);
       PVT_MPT->AddProperty("ABSLENGTH", photonEnergy, absorptionPlastic, numEntries); 
-      PVT_MPT->AddProperty("FASTCOMPONENT",photonEnergy, fastComponentPlastic, numEntries);
+      PVT_MPT->AddProperty("FASTCOMPONENT",photonEnergy, fastComponentPlastic, numEntries, true);
       //add a slow compontent at some point
       PVT_MPT->AddConstProperty("SCINTILLATIONYIELD",10000./MeV);//10000./MeV);
       PVT_MPT->AddConstProperty("RESOLUTIONSCALE",1.0);    
-      PVT_MPT->AddConstProperty("FASTTIMECONSTANT", 2.1*ns);    
-      PVT_MPT->AddConstProperty("YIELDRATIO",1.);
+      PVT_MPT->AddConstProperty("FASTTIMECONSTANT", 2.1*ns, true);    
+      PVT_MPT->AddConstProperty("YIELDRATIO",1., true);
+      
+   //   PVT_MPT->AddProperty("RAYLEIGH",photonEnergy,rayleigh_scattering,numEntries); 
 
 
 

@@ -1,2 +1,2 @@
 
-/control/foreach yLoop.mac xpos "1 2 3 4 5"
+/control/foreach yLoop.mac xpos "0"

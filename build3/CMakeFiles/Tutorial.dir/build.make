@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat"
+CMAKE_SOURCE_DIR = /home/jack/Documents/geant4/NuLat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3"
+CMAKE_BINARY_DIR = /home/jack/Documents/geant4/NuLat/build3
 
 # Utility rule file for Tutorial.
 
@@ -71,6 +71,6 @@ CMakeFiles/Tutorial.dir/clean:
 .PHONY : CMakeFiles/Tutorial.dir/clean
 
 CMakeFiles/Tutorial.dir/depend:
-	cd "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat" "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat" "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3" "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3" "/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/Tutorial.dir/DependInfo.cmake" --color=$(COLOR)
+	cd /home/jack/Documents/geant4/NuLat/build3 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jack/Documents/geant4/NuLat /home/jack/Documents/geant4/NuLat /home/jack/Documents/geant4/NuLat/build3 /home/jack/Documents/geant4/NuLat/build3 /home/jack/Documents/geant4/NuLat/build3/CMakeFiles/Tutorial.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/Tutorial.dir/depend
 

@@ -1,8 +1,8 @@
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/install/strip.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/install/local.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/install.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/list_install_components.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/rebuild_cache.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/edit_cache.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/Tutorial.dir
-/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyNuLat-master/Source_NuLat/build3/CMakeFiles/NuLat.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/install/strip.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/install/local.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/install.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/list_install_components.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/rebuild_cache.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/edit_cache.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/Tutorial.dir
+/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/NuLat.dir

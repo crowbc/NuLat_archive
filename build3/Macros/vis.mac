@@ -26,10 +26,11 @@
 /vis/verbose errors
 #
 # Draw geometry:
+/run/initialize 
 /vis/drawVolume
 #
 # Specify view angle:
-/vis/viewer/set/viewpointThetaPhi 120. 45.
+/vis/viewer/set/viewpointThetaPhi 90. 90.
 #
 # Specify zoom value:
 #/vis/viewer/zoom 1.6
@@ -77,3 +78,6 @@
 # Set visualization to accumulate events into one picture
 #
 /vis/scene/endOfEventAction accumulate
+#
+#
+/run/beamOn 1

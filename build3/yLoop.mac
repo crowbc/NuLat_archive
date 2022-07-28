@@ -1,2 +1,2 @@
 
-/control/foreach positionRun.mac ypos "1 2 3 4 5"
+/control/foreach positionRun.mac ypos "0"

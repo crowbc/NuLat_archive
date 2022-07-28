@@ -93,6 +93,8 @@ G4bool NuLatVoxelSensitiveDetector::ProcessHits(G4Step*step, G4TouchableHistory*
 
   if (edep==0.)
     return true;
+  if (step->GetTrack()->GetDefinition()->GetParticleName()=="opticalphoton")
+    return true;
 
   G4TouchableHistory* touchable = (G4TouchableHistory*)(step->GetPreStepPoint()->GetTouchable());
   G4VPhysicalVolume*  physical  = touchable->GetVolume();

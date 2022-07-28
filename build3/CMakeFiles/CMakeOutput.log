@@ -545,3 +545,17 @@ make[1]: Leaving directory '/home/jack/Documents/geant4/2/MyNuLat-master (2)/MyN
 
 
 
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/jack/Documents/geant4/NuLat/build3/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_2e87c/fast && /usr/bin/make -f CMakeFiles/cmTC_2e87c.dir/build.make CMakeFiles/cmTC_2e87c.dir/build
+make[1]: Entering directory '/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2e87c.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_2e87c.dir/CheckIncludeFile.c.o   -c /home/jack/Documents/geant4/NuLat/build3/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_2e87c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2e87c.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_2e87c.dir/CheckIncludeFile.c.o  -o cmTC_2e87c 
+make[1]: Leaving directory '/home/jack/Documents/geant4/NuLat/build3/CMakeFiles/CMakeTmp'
+
+
+

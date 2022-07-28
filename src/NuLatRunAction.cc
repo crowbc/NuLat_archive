@@ -30,7 +30,7 @@ NuLatRunAction::NuLatRunAction()
 
   //Setting FileName and verbose level
   analysisManager->SetVerboseLevel(1);
-  analysisManager->SetFileName("NuLatOutput");
+  analysisManager->SetFileName("NuLatOutput.root");
 
 
 
