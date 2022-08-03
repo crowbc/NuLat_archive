@@ -1,0 +1,10 @@
+# Macro file for generating reconstruction data
+/tracking/verbose 1
+/run/verbose 1
+#/run/numberOfThreads 1
+/run/initialize
+
+
+/control/foreach positionRun.mac zpos "-3 -2 -1 0 1 2 3"
+
+

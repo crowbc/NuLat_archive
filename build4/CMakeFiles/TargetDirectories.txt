@@ -1,0 +1,8 @@
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/install/strip.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/install/local.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/install.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/list_install_components.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/rebuild_cache.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/edit_cache.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/Tutorial.dir
+/home/jack/Documents/geant4/NuLat/build4/CMakeFiles/NuLat.dir

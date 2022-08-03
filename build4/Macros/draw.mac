@@ -1,0 +1,24 @@
+########################################
+#
+# drawing projections
+#
+/score/drawProjection boxMesh_1 eDep
+/score/drawProjection boxMesh_1 nOfStepGamma
+/score/drawProjection boxMesh_1 nOfStepEMinus
+/score/drawProjection boxMesh_1 nOfStepEPlus
+#
+########################################
+#
+# drawing slices
+#
+/vis/scene/create
+/vis/sceneHandler/attach scene-1
+/score/colorMap/setMinMax ! 0. 800.
+/control/loop Macros/drawSlice.mac iColumn 0 10 3
+#
+########################################
+#
+# Dump scores to a file
+#
+#
+#

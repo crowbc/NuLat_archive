@@ -1,0 +1,9 @@
+
+/NuLat/gun/initialVoxel 0 0 {zpos}
+
+/run/beamOn 1
+
+/control/shell mv NuLatOutput_nt_PMThits.csv output_pencilbeam_{zpos}.csv
+
+
+
