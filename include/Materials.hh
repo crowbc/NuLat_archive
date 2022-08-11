@@ -12,6 +12,7 @@
 #include "G4ElementTable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ios.hh"
+#include "G4NistManager.hh"
 
 class Materials
 {
@@ -34,6 +35,8 @@ class Materials
     G4Element* elPb;
     G4Element* elenriched6Li;
     G4Element* elAl;
+    G4Element *Na;
+    G4Element *I;
 
     G4Isotope* isoLi6;
 
@@ -57,6 +60,7 @@ class Materials
     G4Material* vacuum;
     G4Material* BeCuPhotoCathode;
     G4Material* Aluminium;
+    G4Material *NaI;
     
 
 
@@ -86,7 +90,15 @@ class Materials
           5.099*eV, 5.143*eV, 5.174*eV, 5.202*eV, 5.235*eV, 5.265*eV, 5.294*eV, 5.330*eV, 5.413*eV, 5.493*eV, //180
           5.556*eV, 5.611*eV}; //182
 
-
+	G4NistManager *nist = G4NistManager::Instance();
+	
+	G4double energy[26] = {HCMUM/0.8891, HCMUM/0.8451, HCMUM/0.8033, HCMUM/0.7636, HCMUM/0.7258, HCMUM/0.6899, HCMUM/0.6557, HCMUM/0.6233, HCMUM/0.5924, HCMUM/0.5631, 
+		HCMUM/0.5353, HCMUM/0.5088, HCMUM/0.4836, HCMUM/0.4597, HCMUM/0.4369, HCMUM/0.4153, HCMUM/0.3947, HCMUM/0.3752, HCMUM/0.3566, HCMUM/0.339, 
+		HCMUM/0.3222, HCMUM/0.3063, HCMUM/0.2911, HCMUM/0.2767, HCMUM/0.263, HCMUM/0.250};
+	G4double rindexNaI[26] = {1.7514793193028, 1.753338714921, 1.7554083069968, 1.7577134899302, 1.7602905913854, 1.7631680461798, 1.7663952687813, 1.7699994775469, 1.7740579536442, 1.7786098175401, 
+		1.7837261117122, 1.7895164922257, 1.7960715386354, 1.8034913859982, 1.8119664988198, 1.8216138123297, 1.8327134075919, 1.8454461194368, 1.860241610754, 1.8774002096741, 
+		1.8976189984837, 1.921442035403, 1.9500895751993, 1.984659056014, 2.0271744581354, 2.0803044182369};
+	
 
       //***************************
       //*        Materials        *
@@ -171,6 +183,9 @@ class Materials
       
       z = 13.0;
       elAl = new G4Element("Aluminium", "Al", z, a_elAl);
+      
+      Na = nist->FindOrBuildElement("Na");
+      I = nist->FindOrBuildElement("I");
 
 
       //&&&&&&&&&&&&&&&&&&&&&&&&&
