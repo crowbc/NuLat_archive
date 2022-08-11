@@ -1,0 +1,557 @@
+//DETECTOR CONSTRUCTION FILE
+//File for building the detector geometry
+//(highly related files: Materials.hh, DetectorConstruction.hh, VoxelParameterisation.cc/.hh, LightGuideParameterization.cc/.hh)
+
+// Header files we made
+#include "NuLatDetectorConstruction.hh"
+#include "NuLatVoxelParameterisation.hh"
+#include "NuLatLightGuideParameterisation.hh"
+#include "NuLatVoxelSensitiveDetector.hh"
+#include "NuLatPhotoCathodeSensitiveDetector.hh"
+// Using standard C++ namespace so things like endl and cout are understood
+using namespace std;// not used?
+
+// Constructor for creating the detector geometry
+NuLatDetectorConstruction::NuLatDetectorConstruction()
+{
+	// initialize messengers
+	fMessenger = new G4GenericMessenger(this, "/detector/", "Detector Construction");//set up /voxel and other subdirectories
+	fMessenger->DeclareProperty("nXVoxels", nXVoxels, "Number of voxels (cubes) in the x-dimension");
+	fMessenger->DeclareProperty("nYVoxels", nYVoxels, "Number of voxels (cubes) in the y-dimension");
+	fMessenger->DeclareProperty("nZVoxels", nZVoxels, "Number of voxels (cubes) in the z-dimension");
+	fMessenger->DeclareProperty("voxelXSize", voxelXSize, "Length of voxel in the x-dimension");
+	fMessenger->DeclareProperty("voxelYSize", voxelYSize, "Length of voxel in the y-dimension");
+	fMessenger->DeclareProperty("voxelZSize", voxelZSize, "Length of voxel in the z-dimension");
+	fMessenger->DeclareProperty("voxelXSpacing", voxelXSpacing, "Gap between voxels in the x-dimension");
+	fMessenger->DeclareProperty("voxelYSpacing", voxelYSpacing, "Gap between voxels in the y-dimension");
+	fMessenger->DeclareProperty("voxelZSpacing", voxelZSpacing, "Gap between voxels in the z-dimension");
+	//fMessenger->DeclareProperty("Li6doped", Li6doped, "Toggle Li-6 doping - currently set to dope all voxels.");
+	//fMessenger->DeclareProperty("massfracLi6", massfracLi6, "Li-6 doping percent by mass");
+	// Set defaults
+	nXVoxels = 5;
+	nYVoxels = 5;
+	nZVoxels = 5;
+	voxelXSize = 2.495*2.54*cm;
+	voxelYSize = 2.495*2.54*cm;
+	voxelZSize = 2.495*2.54*cm;
+	voxelXSpacing = 0.005*2.54*cm;
+	voxelYSpacing = 0.005*2.54*cm;
+	voxelZSpacing = 0.005*2.54*cm;
+	// use messenger to change from default values
+	lenPMT = 20*cm;
+	lenLGTaper = 3.5*cm;
+	lenLGSqu = 0.5*cm;
+	lenLGwPMT = lenPMT+lenLGTaper+lenLGSqu;
+	Li6doped = false;// Doping of cubes not implemented
+	// Li-6 dopant fractional mass (default was 0.5% in old simulation code)
+	massfracLi6 = 0.5*perCent;
+	// mass fraction of hydrogen and carbon in PVT with given mass fraction of Li6 dopant
+	massfracHdoped=massfracHPVT/(100.*perCent+massfracLi6);
+	massfracCdoped=massfracCPVT/(100.*perCent+massfracLi6);
+	// Set the materials
+	DefineMaterials();
+}
+
+// Destructor
+NuLatDetectorConstruction::~NuLatDetectorConstruction()
+{}
+
+// Enacts the code that will construct the detector
+G4VPhysicalVolume* NuLatDetectorConstruction::Construct()
+{
+	// Sets the materials(done in constructor)
+	//DefineMaterials();
+	//NuLatMaterials = new Materials();
+	// Builds the detector
+	buildExperimentalHall();
+	// Returns the built detector at the end of function
+	return physWorld;
+}
+
+// Define Materials for use in NuLat
+void NuLatDetectorConstruction::DefineMaterials()
+{
+	G4NistManager *nist = G4NistManager::Instance();
+	// Define needed isotope (change to build from NIST manager)
+	Li6 = new G4Isotope("Li6", 3, 6, 6.015*g/mole);
+	// Define Elements
+	H = nist->FindOrBuildElement("H");
+	Li6enriched = new G4Element("Li6enriched", "Li6", 1);
+	Li6enriched->AddIsotope(Li6, 100.*perCent);
+	Be = nist->FindOrBuildElement("Be");
+	//B = nist->FindOrBuildElement("B");
+	C = nist->FindOrBuildElement("C");
+	//N = nist->FindOrBuildElement("N");
+	O = nist->FindOrBuildElement("O");
+	F = nist->FindOrBuildElement("F");
+	Na = nist->FindOrBuildElement("Na");
+	Al = nist->FindOrBuildElement("Al");
+	Si = nist->FindOrBuildElement("Si");
+	Ca = nist->FindOrBuildElement("Ca");
+	Fe = nist->FindOrBuildElement("Fe");
+	Ni = nist->FindOrBuildElement("Ni");
+	Cu = nist->FindOrBuildElement("Cu");
+	I = nist->FindOrBuildElement("I");
+	Mo = nist->FindOrBuildElement("Mo");
+	In = nist->FindOrBuildElement("In");
+	//Tl = nist->FindOrBuildElement("Tl");// density of G4_Tl = 11.72*g/cm3
+	Pb = nist->FindOrBuildElement("Pb");
+	// Define Materials
+	air = nist->FindOrBuildMaterial("G4_AIR");
+	vacuum = nist->FindOrBuildMaterial("G4_Galactic");//new G4Material("vacuum", 1., 1.008*g/mole, 1.e-25*g/cm3, kStateGas, 273*kelvin, 3.8e-18*pascal);
+	// For Material Properties
+	const size_t numRho = 10;
+	// Index values for look-up
+	const size_t pseudocumeneRhoIndex = 0;
+	const size_t teflonFEPRhoIndex = 1;
+	const size_t acrylicRhoIndex = 2;
+	const size_t leadRhoIndex = 3;
+	const size_t limestoneRhoIndex = 4;
+	const size_t BeCuPhotoCathRhoIndex = 5;
+	const size_t borosilicateGlassRhoIndex = 6;
+	const size_t aluminumRhoIndex = 7;// G4 NIST manager database lists G4_Al as 2.699*g/cm3
+	const size_t PVTRhoIndex = 8;// G4 NIST manager database lists G4_PLASTIC_SC_VINYLTOLUENE density as 1.032*g/cm3
+	const size_t NaIRhoIndex = 9;// G4 NIST manager lists G4_SODIUM_IODIDE density as 3.667*g/cm3
+	G4double rho[numRho] = {
+		0.875*g/cm3, 2.150*g/cm3, 1.180*g/cm3, 11.35*g/cm3, 2360*kg/m3, 5./50000*g/cm3, 2.65*g/cm3, 2.710*g/cm3, 1.021*g/cm3, 3.667*g/cm3
+	};
+	// Energies for Optical Photons
+	const size_t numEntries = 182;
+	G4double photonEnergy[numEntries] = {
+		2.034*eV, 2.068*eV, 2.103*eV, 2.139*eV, 2.177*eV, 2.216*eV, 2.256*eV, 2.298*eV, 2.341*eV, 2.386*eV, //10
+		2.433*eV, 2.481*eV, 2.487*eV, 2.496*eV, 2.506*eV, 2.516*eV, 2.524*eV, 2.531*eV, 2.539*eV, 2.547*eV, //20
+		2.554*eV, 2.561*eV, 2.569*eV, 2.577*eV, 2.586*eV, 2.595*eV, 2.605*eV, 2.614*eV, 2.622*eV, 2.630*eV, //30
+		2.638*eV, 2.646*eV, 2.653*eV, 2.660*eV, 2.669*eV, 2.676*eV, 2.681*eV, 2.688*eV, 2.693*eV, 2.698*eV, //40
+		2.703*eV, 2.706*eV, 2.711*eV, 2.718*eV, 2.723*eV, 2.731*eV, 2.742*eV, 2.755*eV, 2.768*eV, 2.782*eV, //50
+		2.793*eV, 2.803*eV, 2.811*eV, 2.819*eV, 2.829*eV, 2.837*eV, 2.845*eV, 2.853*eV, 2.860*eV, 2.867*eV, //60
+		2.875*eV, 2.882*eV, 2.888*eV, 2.894*eV, 2.900*eV, 2.907*eV, 2.913*eV, 2.919*eV, 2.924*eV, 2.930*eV, //70
+		2.937*eV, 2.942*eV, 2.948*eV, 2.954*eV, 2.960*eV, 2.968*eV, 2.976*eV, 2.983*eV, 2.991*eV, 3.001*eV, //80
+		3.008*eV, 3.017*eV, 3.028*eV, 3.038*eV, 3.048*eV, 3.055*eV, 3.070*eV, 3.087*eV, 3.103*eV, 3.121*eV, //90
+		3.138*eV, 3.155*eV, 3.173*eV, 3.191*eV, 3.220*eV, 3.250*eV, 3.281*eV, 3.313*eV, 3.344*eV, 3.375*eV, //100
+		3.403*eV, 3.439*eV, 3.479*eV, 3.522*eV, 3.566*eV, 3.611*eV, 3.644*eV, 3.684*eV, 3.731*eV, 3.780*eV, //110
+		3.831*eV, 3.868*eV, 3.892*eV, 3.910*eV, 3.921*eV, 3.934*eV, 3.946*eV, 3.957*eV, 3.970*eV, 3.994*eV, //120
+		4.044*eV, 4.102*eV, 4.160*eV, 4.202*eV, 4.236*eV, 4.267*eV, 4.298*eV, 4.328*eV, 4.357*eV, 4.387*eV, //130
+		4.422*eV, 4.455*eV, 4.494*eV, 4.563*eV, 4.607*eV, 4.616*eV, 4.624*eV, 4.627*eV, 4.628*eV, 4.633*eV, //140
+		4.640*eV, 4.642*eV, 4.649*eV, 4.656*eV, 4.661*eV, 4.666*eV, 4.678*eV, 4.685*eV, 4.692*eV, 4.699*eV, //150
+		4.706*eV, 4.713*eV, 4.720*eV, 4.727*eV, 4.740*eV, 4.751*eV, 4.763*eV, 4.775*eV, 4.788*eV, 4.798*eV, //160
+		4.813*eV, 4.828*eV, 4.840*eV, 4.853*eV, 4.869*eV, 4.886*eV, 4.905*eV, 4.928*eV, 4.953*eV, 5.015*eV, //170
+		5.099*eV, 5.143*eV, 5.174*eV, 5.202*eV, 5.235*eV, 5.265*eV, 5.294*eV, 5.330*eV, 5.413*eV, 5.493*eV, //180
+		5.556*eV, 5.611*eV}; //182
+	// PVT Fast scintillation properties, no reference and was with the original Materials.hh file
+	G4double fastCompPVT[numEntries] = {
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.010,  0.020,  0.035,  0.050,  0.060, //10
+		0.070,  0.085,  0.090,  0.095,  0.098,  0.100,  0.110,  0.120,  0.130,  0.140, //20
+		0.150,  0.160,  0.170,  0.180,  0.200,  0.220,  0.240,  0.250,  0.270,  0.290, //30  
+		0.300,  0.320,  0.340,  0.350,  0.360,  0.390,  0.400,  0.420,  0.430,  0.440, //40  
+		0.445,  0.450,  0.460,  0.470,  0.480,  0.500,  0.550,  0.600,  0.630,  0.700, //50  
+		0.730,  0.750,  0.800,  0.830,  0.850,  0.870,  0.900,  0.920,  0.940,  0.950, //60  
+		0.960,  0.970,  0.980,  0.985,  0.990,  0.995,  1.000,  1.000,  1.000,  0.995, //70  
+		0.990,  0.985,  0.980,  0.970,  0.960,  0.930,  0.900,  0.870,  0.850,  0.800, //80 
+		0.700,  0.600,  0.500,  0.400,  0.300,  0.220,  0.130,  0.070,  0.010,  0.000, //90  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //100
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //110  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //120  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //130  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //140  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //150  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //160  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //170  
+		0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000, //180  
+		0.000,  0.000}; //182
+	// Variable Declarations
+	G4double rindexAcrylic[numEntries], absLenAcrylic[numEntries];
+	G4double rindexBeCuPhotoCath[numEntries], absLenBeCuPhotoCath[numEntries];
+	G4double rindexBorosilicateGlass[numEntries], absLenBorosilicateGlass[numEntries];
+	G4double absLenAluminum[numEntries], refAluminum[numEntries], effAluminum[numEntries];
+	G4double rindexAir[numEntries], absLenAir[numEntries];
+	G4double rindexPVT[numEntries], absLenPVT[numEntries], rayleighPVT[numEntries];
+	G4double specLobeMuMetal[numEntries], specSpikeMuMetal[numEntries], backScatterMuMetal[numEntries], refMuMetal[numEntries], effMuMetal[numEntries];
+	pseudocumene = new G4Material("pseudocumene", rho[pseudocumeneRhoIndex], 2);
+	pseudocumene->AddElement(C, 9);
+	pseudocumene->AddElement(H, 12);
+	teflonFEP = new G4Material("Teflon FEP", rho[teflonFEPRhoIndex], 2);
+	teflonFEP->AddElement(F, 10);
+	teflonFEP->AddElement(C, 5);
+	acrylic = new G4Material("acrylic", rho[acrylicRhoIndex], 3);
+	acrylic->AddElement(O, 2);
+	acrylic->AddElement(H, 8);
+	acrylic->AddElement(C, 5);
+	lead = new G4Material( "lead", rho[leadRhoIndex], 1);
+	lead->AddElement(Pb, 1);
+	limestone = new G4Material("Limestone", rho[limestoneRhoIndex], 3);
+	limestone->AddElement(Ca, 2);
+	limestone->AddElement(C, 8);
+	limestone->AddElement(O, 5);
+	BeCuPhotoCath = new G4Material("BeCuPhotoCath", rho[BeCuPhotoCathRhoIndex], 2);
+	BeCuPhotoCath->AddElement(Be, 1);
+	BeCuPhotoCath->AddElement(Cu, 1);
+	borosilicateGlass = new G4Material("borosilicateGlass", rho[borosilicateGlassRhoIndex], 2);
+	borosilicateGlass->AddElement(Si, 1);
+	borosilicateGlass->AddElement(O, 2);
+	aluminium = new G4Material("aluminium", rho[aluminumRhoIndex], 1);
+	aluminium->AddElement(Al, 1);
+	PVT = new G4Material("PVT", rho[PVTRhoIndex], 3);
+	PVT->AddElement(H, massfracHPVT);
+	PVT->AddElement(C, massfracCPVT);
+	if(Li6doped){
+		Li6PVT = new G4Material("Li6PVT", rho[PVTRhoIndex], 3);
+		Li6PVT->AddElement(H, massfracHdoped);
+		Li6PVT->AddElement(C, massfracCdoped);
+		Li6PVT->AddElement(Li6enriched, massfracLi6);
+	}
+	NaI = new G4Material("NaI", rho[NaIRhoIndex], 2);
+	NaI->AddElement(Na, 1);
+	NaI->AddElement(I, 1);
+	OpSurface = new G4OpticalSurface("Al_surface");
+	// Set Material Properties - verify these values
+	for (size_t i=0; i<numEntries; i++){
+		rindexAcrylic[i]=1.492;// find documentation for function found in Materials.hh
+		absLenAcrylic[i]=10.0*m;
+		rindexBeCuPhotoCath[i]=2.7;
+		absLenBeCuPhotoCath[i]=0.001*mm;
+		rindexBorosilicateGlass[i]=1.55;
+		absLenBorosilicateGlass[i]=10*m;
+		absLenAluminum[i]=0.1*m;
+		refAluminum[i]=0.95;
+		effAluminum[i]=1.;
+		rindexAir[i]=1.003;
+		absLenAir[i]=100*m;
+		rindexPVT[i]=1.58;
+		absLenPVT[i]=90.*cm;
+		rayleighPVT[i]=90.*cm;
+		specLobeMuMetal[i]=0.0;
+		specSpikeMuMetal[i]=0.0;
+		backScatterMuMetal[i]=0.0;
+		refMuMetal[i]=0.0;
+		effMuMetal[i]=0.0;
+	}
+	// Input Propterties to Material Properties Tables
+	acrylicMPT = new G4MaterialPropertiesTable();
+	acrylicMPT->AddProperty("RINDEX", photonEnergy, rindexAcrylic, numEntries);
+	acrylicMPT->AddProperty("ABSLENGTH", photonEnergy, absLenAcrylic, numEntries);
+	acrylic->SetMaterialPropertiesTable(acrylicMPT);
+	BeCuPhotoCathMPT = new G4MaterialPropertiesTable();
+	BeCuPhotoCathMPT->AddProperty("RINDEX", photonEnergy, rindexBeCuPhotoCath,numEntries);
+	BeCuPhotoCathMPT->AddProperty("ABSLENGTH", photonEnergy, absLenBeCuPhotoCath, numEntries);
+	BeCuPhotoCath->SetMaterialPropertiesTable(BeCuPhotoCathMPT);
+	borosilicateGlassMPT = new G4MaterialPropertiesTable();
+	borosilicateGlassMPT->AddProperty("RINDEX", photonEnergy, rindexBorosilicateGlass, numEntries);
+	borosilicateGlassMPT->AddProperty("ABSLENGTH", photonEnergy, absLenBorosilicateGlass, numEntries);
+	borosilicateGlass->SetMaterialPropertiesTable(borosilicateGlassMPT);
+	aluminumMPT = new G4MaterialPropertiesTable();
+	aluminumMPT->AddProperty("ABSLENGTH", photonEnergy, absLenAluminum, numEntries);
+	aluminumMPT->AddProperty("REFLECTIVITY", photonEnergy, refAluminum, numEntries);
+	aluminumMPT->AddProperty("EFFICIENCY", photonEnergy, effAluminum, numEntries);
+	aluminium->SetMaterialPropertiesTable(aluminumMPT);
+	OpSurface->SetMaterialPropertiesTable(aluminumMPT);
+	airMPT = new G4MaterialPropertiesTable();
+	airMPT->AddProperty("RINDEX", photonEnergy, rindexAir, numEntries);
+	airMPT->AddProperty("ABSLENGTH", photonEnergy, absLenAir, numEntries);
+	air->SetMaterialPropertiesTable(airMPT);
+	PVTMPT = new G4MaterialPropertiesTable();
+	PVTMPT->AddProperty("RINDEX", photonEnergy, rindexPVT, numEntries);
+	PVTMPT->AddProperty("ABSLENGTH", photonEnergy, absLenPVT, numEntries);
+	PVTMPT->AddProperty("FASTCOMPONENT", photonEnergy, fastCompPVT, numEntries, true);
+	PVT->SetMaterialPropertiesTable(PVTMPT);
+	if(Li6doped){
+		Li6PVT->SetMaterialPropertiesTable(PVTMPT);
+	}
+	muMetalMPT = new G4MaterialPropertiesTable();
+	muMetalMPT->AddProperty("SPECULARLOBECONSTANT", photonEnergy, specLobeMuMetal, numEntries);
+	muMetalMPT->AddProperty("SPECULARSPIKECONSTANT", photonEnergy, specSpikeMuMetal, numEntries);
+	muMetalMPT->AddProperty("BACKSCATTERCONSTANT", photonEnergy, backScatterMuMetal, numEntries);
+	muMetalMPT->AddProperty("REFLECTIVITY", photonEnergy, refMuMetal, numEntries);
+	muMetalMPT->AddProperty("EFFICIENCY", photonEnergy, effMuMetal, numEntries);
+	muMetal->SetMaterialPropertiesTable(muMetalMPT);
+	//NaIMPT = new G4MaterialPropertiesTable();
+	//NaIMPT->AddProperty("RINDEX", energy, rindexNaI, );
+	//NaIMPT->AddProperty("ABSLENGTH", energy, absLenNaI, );
+	//NaIMPT->AddProperty("FASTCOMPONENT", energy, fastCompNaI, , true);
+	//NaIMPT->AddConstProperty("SCINTILLATIONYIELD", );
+	//NaIMPT->AddConstProperty("RESOLUTIONSCALE", 1.0, true);
+	//NaIMPT->AddConstProperty("FASTTIMECONSTANT", , true);
+	//NaIMPT->AddConstProperty("YIELDRATIO", 1.0, true);
+	//NaI->SetMaterialPropertiesTable(NaIMPT);
+	// = new G4MaterialPropertiesTable();
+	// = new G4MaterialPropertiesTable();
+	
+}
+
+//Defining  Experimental Hall (Volume that everything resides within)
+void NuLatDetectorConstruction::buildExperimentalHall()
+{
+	// Places the world volume with everything inside it
+	physWorld = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), WorldVolume(), // calls WorldVolume() constructor function - redo
+		"physWorld", 0, false, 0, ckOl);
+}
+
+/*Create a world logical volume*/
+G4LogicalVolume* NuLatDetectorConstruction::WorldVolume()
+{
+	photoCathID=0;
+	// Total number of cubes (voxels)
+	G4double nVoxels = nXVoxels*nYVoxels*nZVoxels;
+	// Dimensions of Raghaven Optical Lattice of cubes (voxels. Note: VCB denotes Voxelated Calorimeter Box)
+	G4double xVCBSize = nXVoxels*(voxelXSize+voxelXSpacing)+voxelXSpacing;
+	G4double yVCBSize = nYVoxels*(voxelYSize+voxelYSpacing)+voxelYSpacing;
+	G4double zVCBSize = nZVoxels*(voxelZSize+voxelZSpacing)+voxelZSpacing;
+	//WORLD
+	// Create shape for world, going from -VCBSize to +VCBSize in each direction  
+	// IMPROVE - (Make sure it's large enough for the NaI detector to be added) Currently larger than it needs to be as it was getting overlap with lighguide boxes
+	solidWorld = new G4Box("solidWorld", xVCBSize+lenLGwPMT*2, yVCBSize+lenLGwPMT*2, zVCBSize+lenLGwPMT*2);
+	// Create logical volume world, giving it a material                
+	logicWorld = new G4LogicalVolume(solidWorld, air, "logicWorld");
+	//VOXELATED CALORIMETER
+	// Create NuLat Voxelated Calorimeter shape
+	solidNuLatVCB = new G4Box("solidNuLatVCB", xVCBSize/2, yVCBSize/2, zVCBSize/2);
+	// Create NuLat Voxelated Calorimeter logical, giving it material: air
+	logicNuLatVCB = new G4LogicalVolume(solidNuLatVCB, air, "logicNuLatVCB");
+	// Place NuLat Voxelated Calorimeter logical into world                       
+	new G4PVPlacement(0,  G4ThreeVector(0.,0.,0.), logicNuLatVCB, "NuLatVoxelatedCalorimeterPhysical", logicWorld, false, 0, ckOl);
+	//VOXEL
+	// Create Voxel Shape
+	solidVoxel = new G4Box("solidVoxel",voxelXSize/2, voxelYSize/2, voxelZSize/2);
+	// Create Voxel logical, giving it material: 0.5% Lithiated PVT
+	logicVoxel = new G4LogicalVolume(solidVoxel, PVT, "logicVoxel");
+	// Place many repeated volumes, following parameterized pattern  
+	//References NuLatVoxelParameterization in src
+	G4VPVParameterisation *voxelParam = new NuLatVoxelParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2, voxelYSize/2, voxelZSize/2, voxelXSpacing/2, voxelYSpacing/2, voxelZSpacing/2);
+	//G4VPhysicalVolume* physVoxel = 
+	new G4PVParameterised("physVoxel", logicVoxel, logicNuLatVCB, kXAxis, nVoxels, voxelParam, ckOl);
+	//NuLat Light Guides
+	// Define LightGuide w/ PMT and LightGuide w/o PMT logical volumes (EDIT TO add metal dividers)
+	logicLGandPMT = LightGuideAndPMT((voxelXSize+voxelXSpacing-0.127*cm), 4.6*cm, (voxelYSize+voxelYSpacing-0.127*cm), 4.6*cm, lenLGTaper, true);
+	logicLGnoPMT = LightGuideAndPMT((voxelXSize+voxelXSpacing-0.127*cm), 4.6*cm, (voxelYSize+voxelYSpacing-0.127*cm), 4.6*cm, lenLGTaper, false);
+	//NuLat LightGuide +z Bank (Zone on the +Z side of Cube)
+	// Create Lightguide Bank Shape
+	solidPlusZLGBank = new G4Box("solidPlusZLGBank", xVCBSize/2, yVCBSize/2, lenLGwPMT/2);
+	// Create LightGuide +z Logical Volume, giving it material: Air    
+	logicPlusZLGBank = new G4LogicalVolume(solidPlusZLGBank, air, "logicPlusZLGBank");
+	// Place Lightguide +z Logical Volume into world                            
+	new G4PVPlacement(0, G4ThreeVector(0.,0.,zVCBSize/2+lenLGwPMT/2 +.010*2.54*cm), logicPlusZLGBank, "physPlusZLGBank", logicWorld, false, 0, ckOl);
+	// Place LightGuide and PMT setup into +Z Bank (EDIT TO add metal dividers)
+	G4VPVParameterisation *paramPlusZLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels, 
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, 0, 0, 1);
+	new G4PVParameterised("paramPlusZLGBank", logicLGandPMT, logicPlusZLGBank, kZAxis, nXVoxels*nYVoxels, paramPlusZLGBank);
+	// NuLat LightGuide -z Bank
+	solidMinusZLGBank = new G4Box("solidMinusZLGBank", xVCBSize/2, yVCBSize/2, lenLGwPMT/2);
+	logicMinusZLGBank = new G4LogicalVolume(solidMinusZLGBank, air, "logicMinusZLGBank");
+	new G4PVPlacement(0, G4ThreeVector(0.,0.,-1*(zVCBSize/2+lenLGwPMT/2 +.010*2.54*cm)), logicMinusZLGBank, "physMinusZLGBank", logicWorld, false, 0, ckOl);
+	// EDIT TO add metal dividers
+	G4VPVParameterisation *paramMinusZLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, 0, 0, -1);
+	new G4PVParameterised("paramMinusZLGBank", logicLGnoPMT, logicMinusZLGBank, kZAxis, nXVoxels*nYVoxels, paramMinusZLGBank);
+	// NuLat LightGuide +y Bank
+	solidPlusYLGBank  = new G4Box("solidPlusYLGBank", xVCBSize/2, lenLGwPMT/2, zVCBSize/2);
+	logicPlusYLGBank = new G4LogicalVolume(solidPlusYLGBank, air, "logicPlusYLGBank");
+	new G4PVPlacement(0,G4ThreeVector(0.,yVCBSize/2+lenLGwPMT/2 +.010*2.54*cm,0.), logicPlusYLGBank, "physPlusYLGBank", logicWorld, false, 0, ckOl);
+	// EDIT FOR HALF INSTRUMENTED
+	G4VPVParameterisation *paramPlusYLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, 0, 1, 0);
+	new G4PVParameterised("paramPlusYLGBank", logicLGnoPMT, logicPlusYLGBank, kZAxis, nXVoxels*nZVoxels, paramPlusYLGBank);
+	// NuLat LightGuide -y Bank
+	solidMinusYLGBank  = new G4Box("solidMinusYLGBank", xVCBSize/2, lenLGwPMT/2, zVCBSize/2);      
+	logicMinusYLGBank = new G4LogicalVolume(solidMinusYLGBank, air, "logicMinusYLGBank");
+	new G4PVPlacement(0,G4ThreeVector(0.,-1*(yVCBSize/2+lenLGwPMT/2 +.010*2.54*cm),0.), logicMinusYLGBank, "physMinusYLGBank", logicWorld, false, 0, ckOl);
+	G4VPVParameterisation *paramMinusYLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, 0, -1, 0);
+	new G4PVParameterised("paramMinusYLGBank", logicLGandPMT, logicMinusYLGBank, kZAxis, nXVoxels*nZVoxels, paramMinusYLGBank);
+	// NuLat LightGuide +x Bank
+	solidPlusXLGBank = new G4Box("solidPlusXLGBank", lenLGwPMT/2, yVCBSize/2, zVCBSize/2);
+	logicPlusXLGBank = new G4LogicalVolume(solidPlusXLGBank, air, "logicPlusXLGBank");
+	new G4PVPlacement(0, G4ThreeVector(xVCBSize/2+lenLGwPMT/2 +.010*2.54*cm,0.,0.), logicPlusXLGBank, "physPlusXLGBank", logicWorld, false, 0, ckOl);
+	// EDIT FOR HALF INSTRUMENTED
+	G4VPVParameterisation *paramPlusXLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, 1, 0, 0);
+	new G4PVParameterised("paramPlusXLGBank", logicLGnoPMT, logicPlusXLGBank, kZAxis, nZVoxels*nYVoxels, paramPlusXLGBank);
+	// NuLat LightGuide -x Bank
+	solidMinusXLGBank = new G4Box("solidMinusXLGBank", lenLGwPMT/2, yVCBSize/2, zVCBSize/2);
+	logicMinusXLGBank = new G4LogicalVolume(solidMinusXLGBank, air, "logicMinusXLGBank");
+	new G4PVPlacement(0, G4ThreeVector(-1*(xVCBSize/2+lenLGwPMT/2 +.010*2.54*cm),0.,0.), logicMinusXLGBank, "physMinusXLGBank", logicWorld, false, 0, ckOl);
+	G4VPVParameterisation *paramMinusXLGBank = new NuLatLightGuideParameterisation(nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2+voxelXSpacing/2, voxelYSize/2+voxelYSpacing/2, voxelZSize/2+voxelZSpacing/2, 0/2, 0/2, 0/2, -1, 0, 0);
+	new G4PVParameterised("paramMinusXLGBank", logicLGandPMT, logicMinusXLGBank, kZAxis, nZVoxels*nYVoxels, paramMinusXLGBank);
+	// Set visualization attributes
+	// Make Voxels Yellowish
+	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.9,0.9,0.0));
+	logicVoxel->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	// Make VoxelatedCalorimeter Redish
+    	visAttributes = new G4VisAttributes(G4Colour(0.9,0.0,0.0));
+    	logicNuLatVCB->SetVisAttributes(visAttributes);
+    	NuLatVisAttributes.push_back(visAttributes);
+	// Make the World Volume Invisible
+	visAttributes = new G4VisAttributes(false);
+	logicWorld->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	
+	return(logicWorld);
+}
+
+
+
+
+//Creating PMT
+G4LogicalVolume* NuLatDetectorConstruction::HamamatsuR10533()
+{
+	// The PMTs are semi spherical quartz with vacuum inside, 
+	// with a cylindrical mu-metal shield
+	
+	// Define Material Sizes	
+	G4double rPMT=23*mm;
+	G4double thPMTGlass = 4*mm;
+	G4double thPMTGlass_min = 0.8*mm;
+	G4double rPMTPhotoCath=529.25*mm;
+	G4double thPMTPhotoCath = 1*mm;
+	G4double rMuMetal = 3.05*cm;
+	G4double hMuMetal = 19.863*cm;
+	G4double thMuMetal = 0.05*cm;
+	// Define MuMetal cylinder
+	solidMuMetal = new G4Tubs("solidMuMetal", rMuMetal-thMuMetal, rMuMetal, hMuMetal/2., 0., 360*deg);
+	// Create MuMetal Logical Volume, giving it material: muMetal                                    
+	logicMuMetal = new G4LogicalVolume(solidMuMetal, muMetal, "logicMuMetal");
+	// Define PMT lens cylinder
+	solidPMTGlass = new G4Tubs("solidPMTGlass", 0, rPMT, thPMTGlass/2., 0., 360*deg);
+	// Define PMT Convex Surface	                                     
+	solidPMTConvexSurf = new G4Sphere("solidPMTConvexSurf", 0., rPMTPhotoCath, 0.*deg, 360.*deg, 0.*deg, 360.*deg);
+	// Subtract a chunk out of solidPMTGlass to produce a concave lense                                            
+	solidPMTLens = new G4SubtractionSolid("solidPMTLens", solidPMTGlass, solidPMTConvexSurf, 0, G4ThreeVector(0, 0, rPMTPhotoCath-thPMTGlass/2+thPMTGlass_min));
+	// Create pmtLens Logical Volume, giving it material: Borosilicate Glass	                                                
+	logicPMTLens = new G4LogicalVolume(solidPMTLens, borosilicateGlass, "logicPMTLens");
+	// Define photocathode
+	solidPMTPhotoCath = new G4Sphere("solidPMTPhotoCath", rPMTPhotoCath-thPMTPhotoCath, rPMTPhotoCath, 0.*deg, 360.*deg, 177.51*deg, 180*deg);
+	// Create PMT PhotoCathode, giving it material: BeCu
+	logicPMTPhotoCath = new G4LogicalVolume(solidPMTPhotoCath, BeCuPhotoCath, "logicPMTPhotoCath");
+	// Assemble Full PMT
+	// Define the shape it will be built in
+	solidPMT = new G4Tubs("solidPMT", 0, rMuMetal, hMuMetal/2., 0., 360*deg);
+	// Create Logical Volume for the shape, giving it material: vacuum
+	logicPMT = new G4LogicalVolume(solidPMT, NuLatMaterials->vacuum, "logicPMT");
+	// Place muMetal shell in PMT
+	new G4PVPlacement(0, G4ThreeVector(0.,0.,0), logicMuMetal, "physMuMetal", logicPMT, false, 0, ckOl);
+	// Place Lens in PMT
+	new G4PVPlacement(0,G4ThreeVector(0.,0.,-1*(hMuMetal/2.- thPMTGlass/2)), logicPMTLens, "physPMTLens", logicPMT, false, 0, ckOl);
+	// Place PhotoCathode in PMT
+	new G4PVPlacement(0, G4ThreeVector(0.,0.,rPMTPhotoCath-hMuMetal/2+thPMTGlass_min), logicPMTPhotoCath, "pmtPhotoCathode", logicPMT, false, 0, ckOl);
+	// Set Visualization Attributes
+	// Make MuMetal Green and partly transparent
+	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0,255,0,.3));
+	visAttributes->SetForceWireframe(true);
+	//visAttributes->SetForceSolid(true);
+	logicMuMetal->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	// Make Lens Red and partly transparent  
+	visAttributes = new G4VisAttributes(G4Colour(255,0,0,.3));
+	//visAttributes->SetForceWireframe(true);
+	visAttributes->SetForceSolid(true);
+	logicPMTLens->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	// Make Photocathode Green and partly transparent  
+	visAttributes = new G4VisAttributes(G4Colour(0,255,0,.3));
+	visAttributes->SetForceSolid(true);
+	logicPMTPhotoCath->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	
+	return (logicPMT);
+}
+
+
+
+//Creating Lightguide
+G4LogicalVolume* NuLatDetectorConstruction::LightGuideAndPMT(G4double dx1, G4double dx2, G4double dy1, G4double dy2, G4double dz, G4bool instrumented)
+{
+	// dx1 is length along x at the -z surface
+	// dx2 is length along x at the +z surface
+	// dy1 is length along y at the -z surface
+	// dy2 is length along y at the +z surface
+	// dz is length along the z axis
+	// Define Box that lightguide will be constructed in
+	//Edit to add in metal dividers. Increasing size of box and adding divier, removing spacing between PMTs
+	solidLGBox = new G4Box("solidLGBox", dx1/2+0.0635*cm, dy1/2+0.0635*cm, (dz+0.5*cm+19.863*cm)/2);
+	// Create Lightguide Logical to build within, giving it material: air
+	G4LogicalVolume* logicLGBox
+      = new G4LogicalVolume(solidLGBox,
+                            air,
+                            "logicLGBox");
+	if (instrumented == true) {
+		// Define Light Guide Trapezoid
+		solidLGTrd = new G4Trd("solidLGTrd", dx1/2, dx2/2, dy1/2, dy2/2, dz/2);
+		// inside radius at -z surface
+		G4double r1min = 0.0*cm;
+		// outside radius at -z surface
+		G4double r1max = 3.465*2.54/2*cm;
+		// inside radius at +z surface
+		G4double r2min = 0.0*cm;
+		// outside radius at +z surface
+		G4double r2max = 1.811*2.54/2*cm;
+		// Define Light Guide Cone
+		solidLGCone = new G4Cons("solidLGCone", r1min, r1max, r2min, r2max, dz/2, 0, 360*deg);
+		// Define Light Guide Square
+		solidLGSqu = new G4Box("solidLGSqu", dx1/2, dy1/2, 0.5*cm/2);
+		// Create interesecting solid between Trapezoid and Cone, where only material in both zones simultaneously is saved
+		solidLGConeTrdInters = new G4IntersectionSolid("solidLGConeTrdInters", solidLGTrd, solidLGCone);
+		// Create Logical Volume for LightGuide cone/trapezoid intersection, giving it material acrylic                            
+		logicLGConeTrdInters = new G4LogicalVolume(solidLGConeTrdInters, acrylic, "logicLGConeTrdInters");
+		// Create Logical Volume for Square part of LightGuide, giving it material acrylic
+		logicLGSqu = new G4LogicalVolume(solidLGSqu, acrylic, "logicLGSqu");
+		// Place cone&trapezoid intersection into lightguide box
+		new G4PVPlacement(0, G4ThreeVector(0.,0.,0.5*cm/2 - 19.863*cm/2), logicLGConeTrdInters, "guide001", logicLGBox, false, 0, ckOl);
+		// Place square into lightguide box                      
+		new G4PVPlacement(0, G4ThreeVector(0.,0.,-1.0*dz/2 - 19.863*cm/2), logicLGSqu, "guide002", logicLGBox, false, 0, ckOl);
+		// Place Full PMT Structure into lightguide box
+		PMTLog = HamamatsuR10533();
+		new G4PVPlacement(0, G4ThreeVector(0.,0.,(dz+0.5*cm)/2), PMTLog, "PMT", logicLGBox, false, 0, ckOl);
+	}
+	// Define Aluminum dividers and set optical surface properties
+	dividers_outer = new G4Box("dividers_outer", dx1/2 + 0.0635*cm, dy1/2 + 0.0635*cm, 6.5*2.54*cm/2);
+	dividers_inner = new G4Box("dividers_inner", dx1/2, dy1/2, 6.5*2.54*cm/2);
+	solidDividers = new G4SubtractionSolid("solidDividers", dividers_outer, dividers_inner, 0, G4ThreeVector(0, 0, 0));
+	logicDividers = new G4LogicalVolume(solidDividers, aluminium, "logicDividers");
+	new G4PVPlacement(0, G4ThreeVector(0.,0.,-(dz+0.5*cm+19.863*cm)/2+6.5*2.54*cm/2), logicDividers, "dividers", logicLGBox, false, 0, ckOl);
+	Al_surface = new G4LogicalSkinSurface("Al_surface", logicDividers, OpSurface);
+	OpSurface->SetType(dielectric_metal);
+	OpSurface->SetFinish(ground);
+	OpSurface->SetModel(glisur);
+	G4double polish = 0.8;
+	//Visualization Attributes
+	// Make Box holding Light Guide parts invisible
+	G4VisAttributes* visAttributes = new G4VisAttributes(false);
+	logicLGBox->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	if (instrumented == true) {
+		// Make Acrylic Light Guide parts Yellow and partly transparent
+		visAttributes = new G4VisAttributes(G4Colour(255,0,255,.3));
+		logicLGConeTrdInters->SetVisAttributes(visAttributes);
+		logicLGSqu->SetVisAttributes(visAttributes);
+		NuLatVisAttributes.push_back(visAttributes);
+	}
+	visAttributes = new G4VisAttributes(G4Colour(255,0,0,.3));
+	visAttributes->SetForceWireframe(true);
+	//visAttributes->SetForceSolid(true);
+	logicDividers->SetVisAttributes(visAttributes);
+	NuLatVisAttributes.push_back(visAttributes);
+	return(logicLGBox);
+}
+
+
+
+void NuLatDetectorConstruction::ConstructSDandField()
+{
+	// get the pointer to the SDManager
+	G4SDManager* SDman = G4SDManager::GetSDMpointer();
+	// define Voxel Sensitive Detector
+	G4VSensitiveDetector *nuLatVoxel = new NuLatVoxelSensitiveDetector("/NuLatVoxel", nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2, voxelYSize/2, voxelZSize/2, voxelXSpacing/2, voxelYSpacing/2, voxelZSpacing/2);
+	// Adds Voxel Detector to SD Manager
+	SDman->AddNewDetector(nuLatVoxel);
+	// Link the Voxel Detector to the Voxel Logical Volume used in Construction
+	logicVoxel->SetSensitiveDetector(nuLatVoxel);
+	// define PhotoCathode Sensitive Detector
+	G4VSensitiveDetector *nuLatPhotoCathode = new NuLatPhotoCathodeSensitiveDetector("/nuLatPhotoCathode", nXVoxels, nYVoxels, nZVoxels,
+		voxelXSize/2, voxelYSize/2, voxelZSize/2, voxelXSpacing/2, voxelYSpacing/2, voxelZSpacing/2);
+	// Add PhotoCathode Detector to SD Manager
+	SDman->AddNewDetector(nuLatPhotoCathode);
+	// Link the PhotoCathode Detector to the PMT/PhotoCahode Logical Volume used in Construction
+	logicPMTPhotoCath->SetSensitiveDetector(nuLatPhotoCathode);
+}

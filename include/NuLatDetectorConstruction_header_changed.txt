@@ -1,0 +1,145 @@
+//DETECTOR CONSTRUCTION HEADER FILE
+
+#ifndef NuLatDetectorConstruction_H
+#define NuLatDetectorConstruction_H 1
+
+#include <vector>
+#include "globals.hh"
+
+#include "G4RotationMatrix.hh"
+#include "G4VUserDetectorConstruction.hh"
+#include "G4LogicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4SDManager.hh"
+#include "G4GenericMessenger.hh"
+// Header Files for material properties
+#include "G4NistManager.hh"
+#include "G4SystemOfUnits.hh"
+// Header files for setting attributes in visualization
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+// Header file to create many copied volumes
+#include "G4PVParameterised.hh"
+// Header file for creating region that collects data
+#include "G4VSensitiveDetector.hh"
+// New Material Properties (added 2/7/22)
+#include "G4LogicalBorderSurface.hh"
+#include "G4LogicalSkinSurface.hh"
+#include "G4OpticalSurface.hh"
+// Geant4 header files for making shapes
+#include "G4Box.hh"
+#include "G4Cons.hh"
+#include "G4Sphere.hh"
+#include "G4Trd.hh"
+#include "G4Tubs.hh"
+// Geant4 header file for cutting chunks out of a shape
+#include "G4SubtractionSolid.hh"
+// Geant4 header file for creating shapes from intersections
+#include "G4IntersectionSolid.hh"
+// To be deprecated - use DefineMaterials() function and NistManager
+#include "Materials.hh"
+
+// Detector construction
+class NuLatDetectorConstruction : public G4VUserDetectorConstruction
+{
+public:
+	NuLatDetectorConstruction();// make parameterless - change in NuLat.cc when done
+	~NuLatDetectorConstruction();
+	G4VPhysicalVolume* Construct();
+	virtual void ConstructSDandField();
+	
+private:
+	// Variable Declarations
+	// sets variable ckOl to true; used in placement functions
+	G4bool ckOl = true;
+	G4bool Li6doped;
+	//G4bool Li6doped = false;
+	// creates variable copyNumber; used to make copies of voxels and lightguides
+	G4int copyNumber;
+	// numbers of voxels in X, Y and Z dimensions, respectively
+	G4int nXVoxels, nYVoxels, nZVoxels;
+	// ID number of PMT photocathode
+	G4int photoCathID;
+	// size of voxels in X, Y and Z dimensions, respectively
+	G4double voxelXSize, voxelYSize, voxelZSize;
+	// spacing between voxels in X, Y and Z dimensions, respectively
+	G4double voxelXSpacing, voxelYSpacing, voxelZSpacing;
+	G4double lenPMT, lenLGTaper, lenLGSqu, lenLGwPMT, massfracLi6;
+	// PVT properties - mass fractions of C and H - verify these values
+	// HatomsPVT and CatomsPVT verified in NIST manager entry for G4_PLASTIC_SC_VINYLTOLUENE
+	G4double HatomsPVT=10, CatomsPVT=9, aH=1.00797*g/mole, aC=12.01115*g/mole;
+	G4double massfracHPVT=HatomsPVT*aH/(CatomsPVT*aC+HatomsPVT*aH);
+	G4double massfracCPVT=CatomsPVT*aC/(CatomsPVT*aC+HatomsPVT*aH);
+	G4double massfracHdoped, massfracCdoped;
+	
+	// Useful Constants
+	const G4double HCMUM = 1.239841939*eV;// divide by wavelength in microns to get photon energy in eV
+	const G4double HCNM = 1239.841939*eV;// divide by wavelength in nm to get photon energy in eV
+	const G4double BirksLi6 = 0.01045*cm/MeV;// verify. Look up other relevant Birks coefficients
+	
+	// Function Declarations
+	void buildExperimentalHall();
+	void DefineMaterials();
+	void ConstructNaIDet();
+	/********************************/
+	/* Solid Volume Declerations    */
+	/********************************/
+	G4Box *solidWorld, *solidNuLatVCB, *solidVoxel, *solidLGSqu, *solidLGBox, *dividers_inner, *dividers_outer;
+	G4Box *solidPlusZLGBank, *solidMinusZLGBank, *solidPlusYLGBank, *solidMinusYLGBank, *solidPlusXLGBank, *solidMinusXLGBank;
+	G4Cons *solidLGCone;
+	G4Sphere *solidPMTConvexSurf, *solidPMTPhotoCath;
+	G4Trd *solidLGTrd;
+	G4Tubs *solidMuMetal, *solidPMTGlass, *solidPMT;
+	G4Tubs *solidBottom, *solidBarrel, *solidFlange, *solidCrystal, *solidSensDet;
+	G4SubtractionSolid *solidPMTLens, *solidDividers;
+	G4IntersectionSolid *solidLGConeTrdInters;
+	/********************************/
+	/* Logical Volume Declerations  */
+	/********************************/
+	G4LogicalVolume *WorldVolume();
+	G4LogicalVolume *HamamatsuR10533();
+	G4LogicalVolume *LightGuideAndPMT(G4double dx1, G4double dx2, G4double dy1, G4double dy2, G4double dz, G4bool instrumented);
+	G4LogicalVolume *experimentalHallLog, *logicWorld, *logicNuLatVCB, *logicVoxel, *logicLGandPMT, *PMTLog, *logicPMTPhotoCath;
+	G4LogicalVolume *logicLGnoPMT, *logicLGBox, *logicMuMetal, *logicPMTLens, *logicPMT, *logicLGConeTrdInters, *logicLGSqu;
+	G4LogicalVolume *logicPlusXLGBank, *logicPlusYLGBank, *logicPlusZLGBank;
+	G4LogicalVolume *logicMinusXLGBank, *logicMinusYLGBank, *logicMinusZLGBank;
+	G4LogicalVolume *logicDividers;
+	// NaI logical volumes
+	G4LogicalVolume *logicBottom, *logicBarrel, *logicFlange, *logicCrystal, *logicSensDet;
+	/********************************/
+	/* Define Materials and their   */
+	/* properties to use in Logical */
+	/* Volumes                      */
+	/********************************/
+	G4Isotope *Li6;
+	G4Element *H, *Li6enriched, *Be, *B, *C, *N, *O, *F, *Na, *Al, *Si, *Ca, *Fe, *Ni, *Cu, *I, *Mo, *In, *Tl, *Pb;
+	// These Materials are declared separately to not use density array
+	G4Material  *air, *vacuum, *muMetal, *Li6PVT, *NaI_Tl;
+	// Materials declared in the order of their densities in the array rho[numRho]
+	G4Material *pseudocumene, *teflonFEP, *acrylic, *lead, *limestone, *BeCuPhotoCath, *borosilicateGlass, *aluminium, *PVT, *NaI;
+	G4MaterialPropertiesTable *acrylicMPT, *BeCuPhotoCathMPT, *borosilicateGlassMPT, *aluminumMPT, *airMPT, *PVTMPT, *muMetalMPT, *NaIMPT;
+	/********************************/
+	/* Physical Volume Declerations */
+	/********************************/
+	G4VPhysicalVolume *physWorld;
+	// Optical Surface declaration
+	G4OpticalSurface *OpSurface;
+	G4LogicalSkinSurface *Al_surface;
+	/********************************/
+	/* Create an instance of the    */
+	/* Materials class              */
+	/********************************/
+	Materials *NuLatMaterials;
+	/********************************/
+	/*        Pointer to            */
+	/*  Visualization Attributes    */
+	/********************************/
+	std::vector<G4VisAttributes*> NuLatVisAttributes;
+	/********************************/
+	/*        Pointer to            */
+	/*    Messenger Attributes      */
+	/********************************/
+	G4GenericMessenger *fMessenger;
+};
+
+#endif
