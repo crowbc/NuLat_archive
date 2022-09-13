@@ -427,12 +427,12 @@ class Materials
       G4MaterialPropertiesTable *PVT_MPT = new G4MaterialPropertiesTable();      
       PVT_MPT->AddProperty("RINDEX", photonEnergy, refractiveIndexPlastic, numEntries);
       PVT_MPT->AddProperty("ABSLENGTH", photonEnergy, absorptionPlastic, numEntries); 
-      PVT_MPT->AddProperty("FASTCOMPONENT",photonEnergy, fastComponentPlastic, numEntries, true);
+      PVT_MPT->AddProperty("SCINTILLATIONCOMPONENT1",photonEnergy, fastComponentPlastic, numEntries);
       //add a slow compontent at some point
       PVT_MPT->AddConstProperty("SCINTILLATIONYIELD",10000./MeV);//10000./MeV);
       PVT_MPT->AddConstProperty("RESOLUTIONSCALE",1.0);    
-      PVT_MPT->AddConstProperty("FASTTIMECONSTANT", 2.1*ns, true);    
-      PVT_MPT->AddConstProperty("YIELDRATIO",1., true);
+      PVT_MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 2.1*ns);    
+      PVT_MPT->AddConstProperty("SCINTILLATIONYIELD1",1.);
       
    //   PVT_MPT->AddProperty("RAYLEIGH",photonEnergy,rayleigh_scattering,numEntries); 
 
