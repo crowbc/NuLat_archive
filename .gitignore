@@ -1,1 +1,5 @@
-build*/**/*.csv
+NuLatOutput*.csv
+output*.csv
+NuLatOutput*.ods
+NuLatOutput*.xml
+NuLatOutput*.root
