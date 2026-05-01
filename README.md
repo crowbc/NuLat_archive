@@ -1,5 +1,9 @@
 # NuLat
 
+Archive/Read-only
+
+--------------------------------------------------------------------------------------------------------------------
+
 1. How to use
 -Create a build directory in the NuLat directory. (Current build is build3 - starting with build4 for Co-60 source)
 -In the build directory, type the command "cmake .."
