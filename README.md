@@ -1,6 +1,6 @@
 # NuLat
 
-Archive/Read-only
+Archive/Read-only -- current simulation version can be found at [NuLat](https://github.com/crowbc/NuLat)
 
 --------------------------------------------------------------------------------------------------------------------
 
